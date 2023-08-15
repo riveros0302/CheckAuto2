@@ -9,10 +9,36 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.19.1",
+    "@react-native-community/datetimepicker": "^7.4.1",
+    "@react-native-firebase/app": "^18.3.0",
+    "@react-native-firebase/auth": "^18.3.0",
+    "@react-native-firebase/firestore": "^18.3.0",
+    "@react-native-firebase/storage": "^18.3.0",
+    "@react-native-google-signin/google-signin": "^10.0.1",
+    "@react-navigation/native": "^6.1.7",
+    "@react-navigation/stack": "^6.3.17",
     "expo": "~49.0.7",
+    "expo-dev-client": "~2.4.6",
+    "expo-document-picker": "^11.5.4",
+    "expo-image-picker": "^14.3.2",
+    "expo-notifications": "^0.20.1",
     "expo-status-bar": "~1.6.0",
+    "lodash": "^4.17.21",
     "react": "18.2.0",
-    "react-native": "0.72.3"
+    "react-native": "0.72.3",
+    "react-native-blob-util": "^0.19.0",
+    "react-native-dropdown-select-list": "^2.0.4",
+    "react-native-easy-toast": "^2.3.0",
+    "react-native-elements": "^3.4.3",
+    "react-native-gesture-handler": "^2.12.1",
+    "react-native-iap": "^12.10.7",
+    "react-native-image-resizer": "^1.4.5",
+    "react-native-modal-datetime-picker": "^17.0.0",
+    "react-native-pdf": "^6.7.1",
+    "react-native-safe-area-context": "^4.7.1",
+    "react-native-share": "^9.2.3",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
