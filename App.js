@@ -1,10 +1,19 @@
-import { StyleSheet, Text, View, StatusBar, LogBox } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  LogBox,
+  PermissionsAndroid,
+} from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import Navigation from './app/navigation/Navigation';
 import NavigationLogin from './app/navigation/NavigationLogin';
 import Toast from 'react-native-easy-toast';
 import * as Notifications from 'expo-notifications';
+import { RevenueCatProvider } from './app/utils/RevenueCat/RevenueCatProvider';
+import TestRC from './app/utils/RevenueCat/TestRC';
 
 LogBox.ignoreLogs(['Setting a timer']);
 
@@ -14,9 +23,10 @@ export default function App() {
 
   useEffect(() => {
     // Verificar si 'user' tiene datos antes de cambiar 'isLogged'
-    if (user) {
-    }
-  }, [user]);
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+    );
+  }, []);
 
   useEffect(() => {
     // Solicitar permiso para enviar notificaciones
@@ -54,21 +64,27 @@ export default function App() {
   return (
     <>
       <StatusBar style='auto' />
-      <NavigationContainer>
-        {user ? (
-          <Navigation user={user} setUser={setUser} />
-        ) : (
+
+      {user ? (
+        <RevenueCatProvider>
+          <NavigationContainer>
+            <Navigation user={user} setUser={setUser} />
+          </NavigationContainer>
+        </RevenueCatProvider>
+      ) : (
+        <NavigationContainer>
           <NavigationLogin setUser={setUser} toastRef={toastRef} />
-        )}
-        <Toast
-          ref={toastRef}
-          position='bottom'
-          style={styles.backToast}
-          textStyle={styles.txttoast}
-        />
-      </NavigationContainer>
+        </NavigationContainer>
+      )}
+      <Toast
+        ref={toastRef}
+        position='bottom'
+        style={styles.backToast}
+        textStyle={styles.txttoast}
+      />
     </>
   );
+  //  return <TestRC />;
 }
 
 const styles = StyleSheet.create({

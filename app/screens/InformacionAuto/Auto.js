@@ -19,7 +19,7 @@ export default function Auto(props) {
   const [datos, setDatos] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [filter, setFilter] = useState([]);
-  const keysToFilter = ['url_foto', 'createBy', 'Index'];
+  const keysToFilter = ['url_foto', 'createBy', 'Index', 'device'];
   const orderKeys = [
     'Marca',
     'Modelo',
@@ -36,6 +36,7 @@ export default function Auto(props) {
     'Numero_Motor',
     'Numero_Chasis',
   ];
+  console.log('que trae data: ' + JSON.stringify(data));
 
   useEffect(() => {
     //excluimos los datos de kysToFilter

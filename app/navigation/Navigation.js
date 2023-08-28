@@ -11,6 +11,8 @@ import ShowPDF from '../components/ShowPDF';
 import Todos from '../screens/Autos/Todos';
 import Suscripcion from '../screens/Account/Suscripcion';
 import Ajustes from '../screens/Account/Ajustes';
+import Home from '../utils/RevenueCat/Home';
+import { RevenueCatProvider } from '../utils/RevenueCat/RevenueCatProvider';
 
 const Stack = createStackNavigator();
 

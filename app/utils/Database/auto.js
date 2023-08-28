@@ -9,6 +9,7 @@
   getDocs,
   deleteDoc,
 } from 'firebase/firestore';*/
+import { Platform } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
@@ -25,15 +26,20 @@ export const insertAuto = async (vehiculo) => {
     const querySnapshot = await q.get();
     const documentosConMismoUid = querySnapshot.size;
 
-    // Añadir un nuevo documento en la colección "car" con el campo "Index" establecido
+    // Crear un nombre para el documento combinando el UID y el índice
+    const documentoNombre = `${documentosConMismoUid}_${currentUserUid}`;
+
+    // Añadir un nuevo documento en la colección "car" con el nombre de documento personalizado
     await firestore()
       .collection('car')
-      .add({
+      .doc(documentoNombre) // Usar el nombre de documento personalizado
+      .set({
         Marca: vehiculo.marca,
         Modelo: vehiculo.modelo,
         Año: vehiculo.año,
         url_foto: vehiculo.url,
         createBy: currentUserUid,
+        device: Platform.OS,
         Index: documentosConMismoUid,
         Patente: vehiculo.patente,
         Tipo: vehiculo.tipo,
@@ -229,6 +235,28 @@ export const getAllDataCarByUserIdAndIndex = (index) => {
   });
 };
 
+export const getFirstDataCarByUserId = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const q = firestore()
+        .collection('car')
+        .where('createBy', '==', auth().currentUser.uid)
+        .where('Index', '==', 0);
+
+      const querySnapshot = await q.get();
+      const cars = []; // Array para almacenar los datos de los autos
+
+      querySnapshot.forEach((doc) => {
+        cars.push(doc.data());
+      });
+
+      resolve(cars); // Resuelve la promesa con el array de autos
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 export const searchFirebase = async (searchText) => {
   try {
     const q = firestore()
@@ -420,6 +448,64 @@ export const deleteCar = (index) => {
       resolve('El documento fue eliminado correctamente.');
     } catch (error) {
       reject(new Error('Error al eliminar el documento: ' + error.message));
+    }
+  });
+};
+
+export const getLastIndexForUser = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const userId = auth().currentUser.uid;
+
+      // Verificar si el usuario tiene algún registro en la colección 'car'
+      const userCarQuerySnapshot = await firestore()
+        .collection('car')
+        .where('createBy', '==', userId)
+        .limit(1)
+        .get();
+
+      if (!userCarQuerySnapshot.empty) {
+        // Si hay registros para el usuario, obtener el id_auto del último registro
+        const lastCarDoc = userCarQuerySnapshot.docs[0];
+        const idAuto = lastCarDoc.data().Index;
+        console.log('SI HAY: ' + idAuto);
+        resolve(idAuto);
+      } else {
+        // No se encontraron documentos para el usuario
+        resolve(null); // O cualquier valor que consideres apropiado
+        console.log('NO HAY NA');
+      }
+    } catch (error) {
+      console.error('Error fetching last id_auto:', error);
+      reject(error); // Lanzar el error para que la promesa sea rechazada
+    }
+  });
+};
+
+export const getLowestIndex = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const userId = auth().currentUser.uid;
+
+      // Consultar la colección "car" para obtener los documentos del usuario ordenados por Index
+      const querySnapshot = await firestore()
+        .collection('car')
+        .where('createBy', '==', userId)
+        .orderBy('Index')
+        .limit(1)
+        .get();
+
+      if (!querySnapshot.empty) {
+        const firstCarDoc = querySnapshot.docs[0];
+        const lowestIndex = firstCarDoc.data().Index;
+        resolve(lowestIndex);
+      } else {
+        // No se encontraron documentos para el usuario
+        resolve(0); // O cualquier valor que consideres apropiado
+      }
+    } catch (error) {
+      console.error('Error fetching lowest index:', error);
+      reject(error);
     }
   });
 };

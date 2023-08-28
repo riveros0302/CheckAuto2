@@ -131,7 +131,13 @@ function ShowModal(props) {
   const { isVisible, setIsVisible, value, titulo, index, updateData } = props;
   const [valuetxt, setValuetxt] = useState(value);
   const [reload, setReload] = useState(false);
-  const keysToFilter = ['url_foto', 'createBy', 'Index', 'documentos'];
+  const keysToFilter = [
+    'url_foto',
+    'createBy',
+    'Index',
+    'documentos',
+    'device',
+  ];
 
   useEffect(() => {
     setValuetxt(value);

@@ -12,9 +12,15 @@ import { Icon, Image } from 'react-native-elements';
 import React, { useState, useEffect } from 'react';
 import { background, secondary } from '../../utils/tema';
 import Titulo from '../../components/Titulo';
-import { getAllDataCarByUserId, deleteCar } from '../../utils/Database/auto';
+import {
+  getAllDataCarByUserId,
+  deleteCar,
+  getFirstDataCarByUserId,
+} from '../../utils/Database/auto';
 import { useNavigation } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
+import Purchases from 'react-native-purchases';
+import auth from '@react-native-firebase/auth';
 import Loading from '../../components/Loading';
 
 export default function Todos() {
@@ -23,13 +29,24 @@ export default function Todos() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    getAllDataCarByUserId().then((res) => {
-      const existingIds = autos.map((auto) => auto.id);
-      const newAutos = res.filter((auto) => !existingIds.includes(auto.id));
-      setAutos((prevAutos) => [...prevAutos, ...newAutos]);
-      setLoading(false);
-    });
+    const getCar = async () => {
+      setLoading(true);
+      const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
+      if (customerInfo.entitlements.active['pro']) {
+        getAllDataCarByUserId().then((res) => {
+          const existingIds = autos.map((auto) => auto.id);
+          const newAutos = res.filter((auto) => !existingIds.includes(auto.id));
+          setAutos((prevAutos) => [...prevAutos, ...newAutos]);
+          setLoading(false);
+        });
+      } else {
+        getFirstDataCarByUserId().then((res) => {
+          setAutos(res);
+          setLoading(false);
+        });
+      }
+    };
+    getCar();
   }, []);
 
   return (

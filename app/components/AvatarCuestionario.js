@@ -8,9 +8,9 @@ import firestore from '@react-native-firebase/firestore';
 import ImageResizer from 'react-native-image-resizer';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
-import { uploadImage, filterAuto } from '../utils/uploadPhoto';
+import { botoncolor } from '../utils/tema';
 
-export default function AvatarCar(props) {
+export default function AvatarCuestionario(props) {
   const { vehiculo, setVehiculo, profile, setProfile, isPrincipal, index } =
     props;
 
@@ -51,12 +51,10 @@ export default function AvatarCar(props) {
           50
         );
 
-        //--------------subimos la imagen a storage siempre y cuando esté en Principal--------------------------------
+        //---------------------------------------------
 
-        const uploadUrl = await uploadImage(newUri, index);
-        getUrl('url', uploadUrl);
-        setProfile(uploadUrl);
-        filterAuto(uploadUrl, index);
+        setProfile(newUri);
+
         setLoading(false);
 
         //-------------------------------------------------------------------------
@@ -67,10 +65,6 @@ export default function AvatarCar(props) {
         // toastRef.current.show('Error al actualizar tu foto de perfil');
       }
     }
-  };
-
-  const getUrl = async (type, url) => {
-    await setVehiculo({ ...vehiculo, [type]: url });
   };
 
   return (

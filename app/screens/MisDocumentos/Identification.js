@@ -18,7 +18,7 @@ export default function Identification(props) {
   const { route } = props;
   const { index } = route.params;
   const [datos, setDatos] = useState([]);
-  const keysToFilter = ['url_foto', 'createBy', 'Index'];
+  const keysToFilter = ['url_foto', 'createBy', 'Index', 'device'];
   const orderKeys = ['Marca', 'Modelo', 'Año'];
   const [reload, setReload] = useState(false);
 

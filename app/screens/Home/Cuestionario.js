@@ -9,8 +9,13 @@ import {
   id,
   combustibleOptions,
 } from '../../utils/preguntas';
-import { insertAuto } from '../../utils/Database/auto';
-import AvatarCar from '../../components/AvatarCar';
+import {
+  insertAuto,
+  checkIfUserExists,
+  getLastIndexForUser,
+} from '../../utils/Database/auto';
+import { filterAuto, uploadImage } from '../../utils/uploadPhoto';
+import AvatarCuestionario from '../../components/AvatarCuestionario';
 import { SelectList } from 'react-native-dropdown-select-list';
 
 export default function Cuestionario(props) {
@@ -24,6 +29,7 @@ export default function Cuestionario(props) {
     addCar,
     setAddCar,
     setData,
+    index,
   } = props;
   const [startIndex, setStartIndex] = useState(0);
   const [title, setTitle] = useState(
@@ -32,10 +38,11 @@ export default function Cuestionario(props) {
   const [enabled, setEnabled] = useState(true);
   const [isFoto, setIsFoto] = useState(false);
   const [values, setValues] = useState({});
+  const [localProfile, setLocalProfile] = useState('');
 
   const next = () => {
+    subirFotoLocal();
     setVehiculo(values);
-
     // Inicializar campos en el objeto vehiculo con valor predeterminado
     const vehiculoConCamposVacios = {
       año: '',
@@ -63,6 +70,28 @@ export default function Cuestionario(props) {
       setVisible(false);
       insertAuto(vehiculoFinal);
     }
+  };
+
+  const subirFotoLocal = async () => {
+    try {
+      getLastIndexForUser().then(async (lastIndex) => {
+        if (lastIndex === null) {
+          const uploadUrl = await uploadImage(localProfile, index);
+          getUrl('url', uploadUrl);
+          filterAuto(uploadUrl, index);
+        } else {
+          const uploadUrl = await uploadImage(localProfile, lastIndex + 1);
+          getUrl('url', uploadUrl);
+          filterAuto(uploadUrl, lastIndex + 1);
+        }
+      });
+    } catch (error) {
+      console.log('NO SE PUO NA SUBIR ' + error);
+    }
+  };
+
+  const getUrl = async (type, url) => {
+    await setVehiculo({ ...vehiculo, [type]: url });
   };
 
   const setValue = (key, value) => {
@@ -265,12 +294,13 @@ export default function Cuestionario(props) {
         <View>
           <Text style={styles.title}>{title}</Text>
           <View style={{ alignItems: 'center' }}>
-            <AvatarCar
+            <AvatarCuestionario
               vehiculo={values}
               setVehiculo={setValues}
-              profile={profile}
-              setProfile={setProfile}
+              profile={localProfile}
+              setProfile={setLocalProfile}
               isPrincipal={true}
+              index={index}
             />
           </View>
 

@@ -6,6 +6,8 @@ import { isEmpty } from 'lodash';
 import {
   checkIfUserExists,
   getDataCarByUserIdAndIndex,
+  getAllDataCarByUserId,
+  getLowestIndex,
 } from '../../utils/Database/auto';
 import Boton from '../../components/Boton';
 import BotonFlotante from '../../components/BotonFlotante';
@@ -13,6 +15,9 @@ import { background, colorTexto } from '../../utils/tema';
 import Loading from '../../components/Loading';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import MenuFlotante from '../../components/MenuFlotante';
+import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
+import Purchases from 'react-native-purchases';
+import auth from '@react-native-firebase/auth';
 
 export default function Principal({ user, setUser, route }) {
   const [visible, setVisible] = useState(true);
@@ -23,8 +28,19 @@ export default function Principal({ user, setUser, route }) {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const index = !isEmpty(route.params) ? route.params.id : 0;
+
   const isFocused = useIsFocused(); //usado para refrescar la ventana cada vez que se muestra
   const [addCar, setAddCar] = useState(false);
+  const { idSubs } = useRevenueCat();
+  const [NumAutos, setNumAutos] = useState(0);
+
+  useEffect(() => {
+    setLoading(true);
+
+    getAllDataCarByUserId().then((res) => {
+      setNumAutos(res.length);
+    });
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -55,12 +71,46 @@ export default function Principal({ user, setUser, route }) {
 
       fetchUserId();
     }
-  }, [index, isFocused]);
+  }, [index, isFocused, visible]);
 
-  const pressAdd = () => {
-    navigation.navigate('suscripcion');
-    // setVisible(true);
-    // setAddCar(true);
+  const pressAdd = async () => {
+    //hacemos que cada vez que presione este boton consulte primero se la suscripcion esta activa
+    const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
+
+    if (customerInfo.entitlements.active['pro']) {
+      setVisible(true);
+      setAddCar(true);
+      switch (idSubs) {
+        case 'pp_android:pp1m' || 'pp_android:pp1a':
+          if (NumAutos >= 3) {
+            console.log('ya tienes 3 vehiculos NumAutos: ' + NumAutos);
+            setVisible(false);
+            setAddCar(false);
+          }
+          break;
+        case 'po_android:po1m' || 'po_android:po1a':
+          if (NumAutos >= 6) {
+            console.log('ya tienes 6 vehiculos: ' + NumAutos);
+            setVisible(false);
+            setAddCar(false);
+          }
+          break;
+        case 'ppt_android:ppt1m' || 'ppt_android:ppt1a':
+          if (NumAutos >= 12) {
+            console.log('ya tienes 12 vehiculos: ' + NumAutos);
+            setVisible(false);
+            setAddCar(false);
+          }
+          break;
+
+        default:
+          break;
+      }
+    } else {
+      navigation.navigate('suscripcion');
+    }
+
+    //navigation.navigate('borrar');
   };
 
   return (
@@ -74,19 +124,13 @@ export default function Principal({ user, setUser, route }) {
             setProfile={setProfile}
             vehiculo={vehiculo}
             setVehiculo={setVehiculo}
+            index={index}
           />
-          <Text style={styles.nombre}>
-            {isEmpty(data) ? vehiculo.marca : data.Marca}
-          </Text>
+          <Text style={styles.nombre}>{data.Marca}</Text>
           <View style={styles.linea} />
           <View style={styles.perfilhzt}>
-            <Text style={styles.subtitle}>
-              {' '}
-              {isEmpty(data) ? vehiculo.modelo : data.Modelo}{' '}
-            </Text>
-            <Text style={styles.subtitle}>
-              {isEmpty(data) ? vehiculo.año : data.Año}
-            </Text>
+            <Text style={styles.subtitle}> {data.Modelo} </Text>
+            <Text style={styles.subtitle}>{data.Año}</Text>
           </View>
 
           <View style={styles.container}>
@@ -139,6 +183,7 @@ export default function Principal({ user, setUser, route }) {
               addCar={addCar}
               setAddCar={setAddCar}
               setData={addCar ? setData : null}
+              index={index}
             />
           </View>
         ) : null}

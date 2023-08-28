@@ -7,30 +7,38 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Icon, Input } from 'react-native-elements';
 import Loading from '../../components//Loading';
-import { background, primary } from '../../utils/tema';
+import { background, primary, secondary } from '../../utils/tema';
 import MenuFlotante from '../../components/MenuFlotante';
 import Titulo from '../../components/Titulo';
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+var pkg = require('../../../app.json');
+import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
 
 export default function Ajustes({ setUser }) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
+  const { restorePermissions, logoutRC } = useRevenueCat();
 
-  const signOut = () => {
-    setLoading(true);
-    auth()
-      .signOut()
-      .then(async () => {
-        console.log('User signed out!');
-        await GoogleSignin.revokeAccess();
-        await GoogleSignin.signOut();
-        setUser();
-        setLoading(false);
-      });
+  const signOut = async () => {
+    try {
+      setLoading(true);
+      await auth().signOut();
+
+      // Si el cierre de sesión en Firebase es exitoso, entonces se procede a cerrar la sesión en RevenueCat
+      await logoutRC();
+
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      setUser();
+    } catch (error) {
+      console.log('Error signing out:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleSwitch = () => {
@@ -47,14 +55,14 @@ export default function Ajustes({ setUser }) {
             <View style={{ marginTop: 25 }}>
               <Input
                 label='Nombre Usuario'
-                value={auth().currentUser.displayName}
+                value={auth().currentUser ? auth().currentUser.displayName : ''}
                 labelStyle={styles.lbl}
                 style={styles.value}
                 editable={false}
               />
               <Input
                 label='Correo Electronico'
-                value={auth().currentUser.email}
+                value={auth().currentUser ? auth().currentUser.email : ''}
                 labelStyle={styles.lbl}
                 style={styles.value}
                 editable={false}
@@ -111,7 +119,7 @@ export default function Ajustes({ setUser }) {
               <Text style={styles.txt}>Acerca de</Text>
               <Text style={styles.txt2}>CheckAuto </Text>
               <Text style={styles.txt2}>Desarrollado por TEOMGames{'\n'} </Text>
-              <Text style={styles.txt2}>Version 1.0.1</Text>
+              <Text style={styles.txt2}>Version {pkg.expo.version}</Text>
             </View>
           </View>
           <Button
@@ -145,15 +153,31 @@ export default function Ajustes({ setUser }) {
             }}
             buttonStyle={{ backgroundColor: 'white' }}
           />
+          <Button
+            title={'Restaurar Suscripción'}
+            onPress={restorePermissions}
+            containerStyle={{
+              borderRadius: 10,
+              width: '90%',
+              alignSelf: 'center',
+              marginTop: 18,
+            }}
+            titleStyle={{
+              fontWeight: 'bold',
+              fontSize: 20,
+              color: 'red',
+            }}
+            buttonStyle={{ backgroundColor: 'white' }}
+          />
           <Text
             style={{
-              color: 'white',
+              color: secondary,
               fontWeight: 'bold',
               marginVertical: 15,
               textAlign: 'center',
             }}
           >
-            ID de usuario: {auth().currentUser.uid}
+            UID: {auth().currentUser ? auth().currentUser.uid : ''}
           </Text>
         </ScrollView>
 
