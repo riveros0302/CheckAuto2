@@ -14,7 +14,7 @@ import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 
-export const insertAuto = async (vehiculo) => {
+export const insertAuto = async (vehiculo, isUpdate) => {
   try {
     // Obtener el UID del usuario actual
     const currentUserUid = auth().currentUser.uid;
@@ -25,43 +25,55 @@ export const insertAuto = async (vehiculo) => {
       .where('createBy', '==', currentUserUid);
     const querySnapshot = await q.get();
     const documentosConMismoUid = querySnapshot.size;
+    const lastindex = await getLastIndexForUser();
+    console.log('lasindex: ' + lastindex);
+    const indexfinal =
+      lastindex == null ? 0 : isUpdate ? lastindex : lastindex + 1;
+    console.log('cual es el last index?: ' + indexfinal);
 
     // Crear un nombre para el documento combinando el UID y el índice
-    const documentoNombre = `${documentosConMismoUid}_${currentUserUid}`;
+    const documentoNombre = `${indexfinal}_${currentUserUid}`;
+
+    // Crear un objeto con los campos comunes
+    const vehiculoData = {
+      Marca: vehiculo.Marca,
+      Modelo: vehiculo.Modelo,
+      Año: vehiculo.Año,
+      createBy: currentUserUid,
+      device: Platform.OS,
+      Index: indexfinal,
+      Patente: vehiculo.Patente,
+      Tipo: vehiculo.Tipo,
+      Combustible: vehiculo.Combustible,
+      Aire: vehiculo.Aire,
+      Rueda: vehiculo.Rueda,
+      Luces: vehiculo.Luces,
+      Transmision: vehiculo.Transmision,
+      Motor: vehiculo.Motor,
+      Autonomia: vehiculo.Autonomia,
+      Numero_Motor: vehiculo.N_motor,
+      Numero_Chasis: vehiculo.N_chasis,
+      documentos: {
+        licencia_Conducir: '',
+        permiso_Circulacion: '',
+        soap: '',
+        revision_Tecnica: '',
+        inscripcion: '',
+        otros: '',
+        padron: '',
+      },
+    };
+
+    if (!isUpdate) {
+      // Si no es una actualización (isUpdate es false), agrega url_foto
+      vehiculoData.url_foto = vehiculo.url;
+    }
 
     // Añadir un nuevo documento en la colección "car" con el nombre de documento personalizado
     await firestore()
       .collection('car')
       .doc(documentoNombre) // Usar el nombre de documento personalizado
-      .set({
-        Marca: vehiculo.marca,
-        Modelo: vehiculo.modelo,
-        Año: vehiculo.año,
-        url_foto: vehiculo.url,
-        createBy: currentUserUid,
-        device: Platform.OS,
-        Index: documentosConMismoUid,
-        Patente: vehiculo.patente,
-        Tipo: vehiculo.tipo,
-        Combustible: vehiculo.combustible,
-        Aire: vehiculo.aire,
-        Rueda: vehiculo.rueda,
-        Luces: vehiculo.luces,
-        Transmision: vehiculo.transmision,
-        Motor: vehiculo.motor,
-        Autonomia: vehiculo.autonomia,
-        Numero_Motor: vehiculo.n_motor,
-        Numero_Chasis: vehiculo.n_chasis,
-        documentos: {
-          licencia_Conducir: '',
-          permiso_Circulacion: '',
-          soap: '',
-          revision_Tecnica: '',
-          inscripcion: '',
-          otros: '',
-          padron: '',
-        },
-      });
+      .set(vehiculoData, { merge: true }); // Usa merge: true para mantener los campos existentes si isUpdate es true
   } catch (error) {
     throw error;
   }
@@ -237,11 +249,12 @@ export const getAllDataCarByUserIdAndIndex = (index) => {
 
 export const getFirstDataCarByUserId = () => {
   return new Promise(async (resolve, reject) => {
+    const Lowindex = await getLowestIndex();
     try {
       const q = firestore()
         .collection('car')
         .where('createBy', '==', auth().currentUser.uid)
-        .where('Index', '==', 0);
+        .where('Index', '==', Lowindex);
 
       const querySnapshot = await q.get();
       const cars = []; // Array para almacenar los datos de los autos
@@ -455,29 +468,26 @@ export const deleteCar = (index) => {
 export const getLastIndexForUser = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const userId = auth().currentUser.uid;
-
-      // Verificar si el usuario tiene algún registro en la colección 'car'
-      const userCarQuerySnapshot = await firestore()
-        .collection('car')
-        .where('createBy', '==', userId)
+      const carCollection = firestore().collection('car');
+      const querySnapshot = await carCollection
+        .where('createBy', '==', auth().currentUser.uid)
+        .orderBy('Index', 'desc')
         .limit(1)
         .get();
 
-      if (!userCarQuerySnapshot.empty) {
-        // Si hay registros para el usuario, obtener el id_auto del último registro
-        const lastCarDoc = userCarQuerySnapshot.docs[0];
-        const idAuto = lastCarDoc.data().Index;
-        console.log('SI HAY: ' + idAuto);
-        resolve(idAuto);
+      if (!querySnapshot.empty) {
+        // Si hay documentos en la colección, obtenemos el máximo ID_AUTO
+        const maxIdAutoDoc = querySnapshot.docs[0].data();
+        const maxIdAuto = maxIdAutoDoc.Index;
+        resolve(maxIdAuto); // Resuelve la promesa con el ID_AUTO más alto
       } else {
-        // No se encontraron documentos para el usuario
-        resolve(null); // O cualquier valor que consideres apropiado
-        console.log('NO HAY NA');
+        // Si no hay documentos en la colección, establecemos un valor predeterminado (puedes ajustarlo según tus necesidades)
+        const defaultValue = null;
+        resolve(defaultValue); // Resuelve la promesa con el valor predeterminado
       }
     } catch (error) {
-      console.error('Error fetching last id_auto:', error);
-      reject(error); // Lanzar el error para que la promesa sea rechazada
+      console.error('Error al obtener el idAuto más alto:', error);
+      reject(error); // Rechaza la promesa y lanza el error para manejarlo en un nivel superior
     }
   });
 };

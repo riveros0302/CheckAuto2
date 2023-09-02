@@ -24,7 +24,10 @@
       "package": "com.riveros0302.CheckAuto2",
       "googleServicesFile": "./google-services.json",
       "versionCode": 7,
-      "permissions": ["BILLING"]
+      "permissions": ["BILLING", "ACCESS_FINE_LOCATION"]
+    },
+    "hooks": {
+      "prebuild": "echo 'do nothing'"
     },
     "web": {
       "favicon": "./assets/favicon.png"

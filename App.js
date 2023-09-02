@@ -14,6 +14,7 @@ import Toast from 'react-native-easy-toast';
 import * as Notifications from 'expo-notifications';
 import { RevenueCatProvider } from './app/utils/RevenueCat/RevenueCatProvider';
 import TestRC from './app/utils/RevenueCat/TestRC';
+import TestOBD2 from './app/screens/OBD2/TestOBD2';
 
 LogBox.ignoreLogs(['Setting a timer']);
 
@@ -84,7 +85,7 @@ export default function App() {
       />
     </>
   );
-  //  return <TestRC />;
+  // return <TestOBD2 />;
 }
 
 const styles = StyleSheet.create({

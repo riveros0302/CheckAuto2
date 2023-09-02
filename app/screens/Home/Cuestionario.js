@@ -9,6 +9,7 @@ import {
   id,
   combustibleOptions,
 } from '../../utils/preguntas';
+import { isEmpty } from 'lodash';
 import {
   insertAuto,
   checkIfUserExists,
@@ -30,6 +31,7 @@ export default function Cuestionario(props) {
     setAddCar,
     setData,
     index,
+    isUpdate,
   } = props;
   const [startIndex, setStartIndex] = useState(0);
   const [title, setTitle] = useState(
@@ -39,54 +41,78 @@ export default function Cuestionario(props) {
   const [isFoto, setIsFoto] = useState(false);
   const [values, setValues] = useState({});
   const [localProfile, setLocalProfile] = useState('');
+  const [hiddenIMG, setHiddenIMG] = useState(false);
 
-  const next = () => {
+  useEffect(() => {
+    if (localProfile != '') {
+      setProfile(localProfile);
+    }
+  }, [localProfile]);
+
+  useEffect(() => {
+    const getValueVehiculo = () => {
+      if (!isEmpty(vehiculo)) {
+        setValues(vehiculo);
+      }
+    };
+
+    getValueVehiculo();
+  }, []);
+
+  const next = async () => {
     subirFotoLocal();
+
     setVehiculo(values);
     // Inicializar campos en el objeto vehiculo con valor predeterminado
     const vehiculoConCamposVacios = {
-      año: '',
-      marca: '',
-      modelo: '',
+      Año: '',
+      Marca: '',
+      Modelo: '',
       url: '',
-      patente: '',
-      tipo: '',
-      combustible: '',
-      aire: '',
-      rueda: '',
-      luces: '',
-      transmision: '',
-      motor: '',
-      autonomia: '',
-      n_motor: '',
-      n_chasis: '',
+      Patente: '',
+      Tipo: '',
+      Combustible: '',
+      Aire: '',
+      Rueda: '',
+      Luces: '',
+      Transmision: '',
+      Motor: '',
+      Autonomia: '',
+      N_motor: '',
+      N_chasis: '',
     };
 
     // Fusionar los valores ingresados por el usuario con los campos vacíos predeterminados
     const vehiculoFinal = { ...vehiculoConCamposVacios, ...values };
 
-    if (isFoto) {
+    if (isFoto || hiddenIMG) {
       //setData({});
+
+      await insertAuto(vehiculoFinal, isUpdate);
       setVisible(false);
-      insertAuto(vehiculoFinal);
     }
   };
 
   const subirFotoLocal = async () => {
-    try {
-      getLastIndexForUser().then(async (lastIndex) => {
-        if (lastIndex === null) {
-          const uploadUrl = await uploadImage(localProfile, index);
-          getUrl('url', uploadUrl);
-          filterAuto(uploadUrl, index);
-        } else {
-          const uploadUrl = await uploadImage(localProfile, lastIndex + 1);
-          getUrl('url', uploadUrl);
-          filterAuto(uploadUrl, lastIndex + 1);
-        }
-      });
-    } catch (error) {
-      console.log('NO SE PUO NA SUBIR ' + error);
+    if (!isUpdate) {
+      try {
+        getLastIndexForUser().then(async (lastIndex) => {
+          if (lastIndex === null) {
+            const uploadUrl = await uploadImage(localProfile, index);
+            getUrl('url', uploadUrl);
+            filterAuto(uploadUrl, index);
+          } else {
+            const uploadUrl = await uploadImage(
+              localProfile,
+              isUpdate ? lastIndex : lastIndex + 1
+            );
+            getUrl('url', uploadUrl);
+            filterAuto(uploadUrl, lastIndex + 1);
+          }
+        });
+      } catch (error) {
+        console.log('NO SE PUO NA SUBIR ' + error);
+      }
     }
   };
 
@@ -95,7 +121,7 @@ export default function Cuestionario(props) {
   };
 
   const setValue = (key, value) => {
-    if (key === 'patente') {
+    if (key === 'Patente') {
       const alphanumericText = value.replace(/[^A-Za-z0-9]/g, '');
 
       // Separar la patente en grupos de 2 caracteres con un "-" en el medio
@@ -109,18 +135,16 @@ export default function Cuestionario(props) {
         [key]: uppercaseText,
       }));
     } else {
-      // Convertir el texto a mayúsculas
-      const uppercaseText = value.toUpperCase();
       setValues((prevValues) => ({
         ...prevValues,
-        [key]: uppercaseText,
+        [key]: value,
       }));
     }
   };
 
   const getValue = (e, type) => {
     console.log(type);
-    if (type === 'combustible') {
+    if (type === 'Combustible') {
       setVehiculo({ ...vehiculo, [type]: e });
     } else {
       setVehiculo({ ...vehiculo, [type]: e.nativeEvent.text });
@@ -134,6 +158,7 @@ export default function Cuestionario(props) {
     switch (startIndex) {
       case 6:
         setTitle('¡Ya casi terminamos!');
+        setHiddenIMG(isUpdate ? true : false);
         break;
       case 12:
         setIsFoto(true);
@@ -268,11 +293,11 @@ export default function Cuestionario(props) {
 
         <Button
           buttonStyle={styles.boton}
-          onPress={isFoto ? next : showMoreInputs}
+          onPress={isFoto || hiddenIMG ? next : showMoreInputs}
           icon={
             <Icon
               type='material-community'
-              name={isFoto ? 'check' : 'chevron-double-right'}
+              name={isFoto || hiddenIMG ? 'check' : 'chevron-double-right'}
               color={'white'}
               size={50}
             />
@@ -297,7 +322,7 @@ export default function Cuestionario(props) {
             <AvatarCuestionario
               vehiculo={values}
               setVehiculo={setValues}
-              profile={localProfile}
+              profile={!isEmpty(vehiculo) ? vehiculo.url_foto : localProfile}
               setProfile={setLocalProfile}
               isPrincipal={true}
               index={index}

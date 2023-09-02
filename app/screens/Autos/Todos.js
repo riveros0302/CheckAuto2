@@ -33,6 +33,7 @@ export default function Todos() {
       setLoading(true);
       const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
       if (customerInfo.entitlements.active['pro']) {
+        console.log('SUSCRIPCION ACTIVA');
         getAllDataCarByUserId().then((res) => {
           const existingIds = autos.map((auto) => auto.id);
           const newAutos = res.filter((auto) => !existingIds.includes(auto.id));
@@ -85,7 +86,6 @@ function BotonAuto(props) {
   };
 
   const goCar = () => {
-    console.log('enviando parametro: ' + item.item.Index);
     navigation.navigate('home', { id: item.item.Index });
   };
 

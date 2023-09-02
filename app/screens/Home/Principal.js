@@ -27,12 +27,27 @@ export default function Principal({ user, setUser, route }) {
   const [profile, setProfile] = useState();
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const index = !isEmpty(route.params) ? route.params.id : 0;
+  // const index = !isEmpty(route.params) ? route.params.id : 0;
 
   const isFocused = useIsFocused(); //usado para refrescar la ventana cada vez que se muestra
   const [addCar, setAddCar] = useState(false);
   const { idSubs } = useRevenueCat();
   const [NumAutos, setNumAutos] = useState(0);
+  const [index, setIndex] = useState(0);
+  const [isUpdate, setIsUpdate] = useState(false);
+
+  useEffect(() => {
+    const fetchLowestIndex = async () => {
+      try {
+        const Lowindex = await getLowestIndex();
+        setIndex(!isEmpty(route.params) ? route.params.id : Lowindex);
+      } catch (error) {
+        console.error('Error fetching lowest index:', error);
+      }
+    };
+
+    fetchLowestIndex();
+  }, [route]);
 
   useEffect(() => {
     setLoading(true);
@@ -49,20 +64,24 @@ export default function Principal({ user, setUser, route }) {
 
       const fetchUserId = async () => {
         try {
-          await checkIfUserExists().then((empty) => {
-            if (!empty) {
-              console.log('El usuario existe en la tabla "auto"');
-              getDataCarByUserIdAndIndex(index).then((res) => {
-                setData(res);
+          const empty = await checkIfUserExists();
+          if (!empty) {
+            console.log('El usuario existe en la tabla "auto"');
+            getDataCarByUserIdAndIndex(index).then((res) => {
+              setData(res);
+              if (!isEmpty(res.url_foto)) {
                 setProfile(res.url_foto);
-                setLoading(false);
-              });
-            } else {
-              console.log('El usuario no existe en la tabla "auto" con id: ');
-              setData({});
+              }
+
               setLoading(false);
-            }
-          });
+            });
+          } else {
+            console.log(
+              'El usuario no existe en la tabla "auto" y empty arroja: ' + empty
+            );
+            setData({});
+            setLoading(false);
+          }
         } catch (error) {
           console.log('Error al realizar la consulta:', error);
           setLoading(false);
@@ -73,8 +92,17 @@ export default function Principal({ user, setUser, route }) {
     }
   }, [index, isFocused, visible]);
 
+  const editCar = () => {
+    setVehiculo(data);
+    setAddCar(true);
+    setIsUpdate(true); //este state servira para indicarle a firestore que no sume un index sino que lo mantenga ya que es una actualizacion del mismo
+    setVisible(true);
+  };
+
   const pressAdd = async () => {
+    setIsUpdate(false); //isUpdate se deja en false para indicarle a firestore o insertCar que aumente en +1 el index o mas bien que no deje el mismo index ya que ahora si es agregar
     //hacemos que cada vez que presione este boton consulte primero se la suscripcion esta activa
+    setVehiculo({});
     const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
 
     if (customerInfo.entitlements.active['pro']) {
@@ -169,6 +197,12 @@ export default function Principal({ user, setUser, route }) {
             posicion={'center'}
             onpress={pressAdd}
           />
+          <BotonFlotante
+            source={require('../../../assets/Iconos/EDITAR.png')}
+            posicion={'center'}
+            onpress={editCar}
+            isEdit={true}
+          />
         </View>
 
         {isEmpty(data) || addCar ? (
@@ -184,6 +218,7 @@ export default function Principal({ user, setUser, route }) {
               setAddCar={setAddCar}
               setData={addCar ? setData : null}
               index={index}
+              isUpdate={isUpdate}
             />
           </View>
         ) : null}
