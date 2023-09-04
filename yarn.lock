@@ -5756,6 +5756,11 @@ react-is@^17.0.1:
   resolved "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
+react-native-background-fetch@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.npmjs.org/react-native-background-fetch/-/react-native-background-fetch-4.2.1.tgz#81351355973f676295cfbb7a7946d7d4902273b6"
+  integrity sha512-UePBlP2Az6PWrIDCoGDYl0IlimvV+TFl/5XUmL4KIo7xPK7TSZru1nYHH7uskW2an5AW39ko3mbV2w/+1LxsnQ==
+
 react-native-ble-plx@^2.0.3:
   version "2.0.3"
   resolved "https://registry.npmjs.org/react-native-ble-plx/-/react-native-ble-plx-2.0.3.tgz#b0a746f33389dbf7fd7b158513330d487d5d0fbb"
@@ -5831,6 +5836,11 @@ react-native-pdf@^6.7.1:
   dependencies:
     crypto-js "^3.2.0"
     deprecated-react-native-prop-types "^2.3.0"
+
+react-native-permissions@^3.9.0:
+  version "3.9.0"
+  resolved "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-3.9.0.tgz#e3ba0460509dce6766e4728173dfa8bbf0886e0b"
+  integrity sha512-Z+PAx1Dld6ckQ4YecY+HvoKysbBBBLQEhawIOpPKZ8n2Pj+jy6KogRIAL00AaE2P76dEdPh6HGkWCDfR4k2siQ==
 
 react-native-purchases@^6.6.0:
   version "6.6.0"

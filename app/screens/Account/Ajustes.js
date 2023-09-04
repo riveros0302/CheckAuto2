@@ -17,11 +17,14 @@ import auth from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 var pkg = require('../../../app.json');
 import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
+import Modal from '../../components/Modal';
+import { privacidad } from '../../utils/politicas';
 
 export default function Ajustes({ setUser }) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const { restorePermissions, logoutRC } = useRevenueCat();
+  const [isVisible, setIsVisible] = useState(false);
 
   const signOut = async () => {
     try {
@@ -43,6 +46,10 @@ export default function Ajustes({ setUser }) {
 
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
+  };
+
+  const callPolitics = () => {
+    setIsVisible(true);
   };
 
   return (
@@ -101,7 +108,7 @@ export default function Ajustes({ setUser }) {
               />
             </View>
           </View>
-          <TouchableOpacity style={styles.viewContainer}>
+          <TouchableOpacity style={styles.viewContainer} onPress={callPolitics}>
             <View style={styles.viewRow}>
               <Text style={styles.txt}>Politicas de Privacidad</Text>
               <Icon
@@ -182,8 +189,36 @@ export default function Ajustes({ setUser }) {
         </ScrollView>
 
         <Loading isVisible={loading} text='Cerrando sesión' />
+        <Politicas
+          isVisible={isVisible}
+          setIsVisible={setIsVisible}
+          privacidad={privacidad}
+        />
       </ImageBackground>
     </View>
+  );
+}
+
+function Politicas(props) {
+  const { isVisible, setIsVisible, privacidad } = props;
+  console.log(privacidad);
+  return (
+    <Modal
+      isVisible={isVisible}
+      setIsVisible={setIsVisible}
+      colorModal={'white'}
+      close={false}
+    >
+      <ScrollView style={{ height: '75%' }}>
+        <Text style={styles.titlePolitics}>Politicas de Privacidad</Text>
+        <Text style={styles.politics}>{privacidad}</Text>
+      </ScrollView>
+      <Button
+        title={'Aceptar'}
+        buttonStyle={{ marginTop: 20, borderRadius: 30 }}
+        onPress={() => setIsVisible(false)}
+      />
+    </Modal>
   );
 }
 
@@ -240,5 +275,17 @@ const styles = StyleSheet.create({
     color: 'grey',
     marginLeft: 20,
     fontSize: 18,
+  },
+  titlePolitics: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 15,
+  },
+  politics: {
+    fontSize: 15,
+    marginHorizontal: 20,
+    textAlign: 'justify',
   },
 });

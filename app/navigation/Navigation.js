@@ -16,7 +16,7 @@ import { RevenueCatProvider } from '../utils/RevenueCat/RevenueCatProvider';
 
 const Stack = createStackNavigator();
 
-export default function Navigation({ user, setUser }) {
+export default function Navigation({ user, setUser, toastRef }) {
   return (
     <Stack.Navigator
       initialRouteName='home'
@@ -27,7 +27,12 @@ export default function Navigation({ user, setUser }) {
     >
       <Stack.Screen name='home' options={{ headerShown: false }}>
         {({ route }) => (
-          <Principal route={route} user={user} setUser={setUser} />
+          <Principal
+            route={route}
+            user={user}
+            setUser={setUser}
+            toastRef={toastRef}
+          />
         )}
       </Stack.Screen>
       <Stack.Screen

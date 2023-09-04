@@ -18,8 +18,9 @@ import MenuFlotante from '../../components/MenuFlotante';
 import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
 import Purchases from 'react-native-purchases';
 import auth from '@react-native-firebase/auth';
+import { isDisabledAccount } from '../../utils/google';
 
-export default function Principal({ user, setUser, route }) {
+export default function Principal({ user, setUser, route, toastRef }) {
   const [visible, setVisible] = useState(true);
   const [data, setData] = useState({});
   const [vehiculo, setVehiculo] = useState({});
@@ -31,10 +32,25 @@ export default function Principal({ user, setUser, route }) {
 
   const isFocused = useIsFocused(); //usado para refrescar la ventana cada vez que se muestra
   const [addCar, setAddCar] = useState(false);
-  const { idSubs } = useRevenueCat();
+  const { idSubs, logoutRC } = useRevenueCat();
   const [NumAutos, setNumAutos] = useState(0);
   const [index, setIndex] = useState(0);
   const [isUpdate, setIsUpdate] = useState(false);
+  const [isEditIndex, setIsEditIndex] = useState(false); //state para saber si usar 'index' en vez de indexfinal en Cuestionario
+
+  useEffect(() => {
+    const validarSesion = async () => {
+      const result = await isDisabledAccount(setUser);
+      if (result == 'Esta cuenta ha sido deshabilitada temporalmente') {
+        toastRef.current.show(result, 3000);
+        logoutRC();
+      } else {
+        toastRef.current.show(result, 3000);
+      }
+    };
+
+    validarSesion();
+  }, []);
 
   useEffect(() => {
     const fetchLowestIndex = async () => {
@@ -66,7 +82,6 @@ export default function Principal({ user, setUser, route }) {
         try {
           const empty = await checkIfUserExists();
           if (!empty) {
-            console.log('El usuario existe en la tabla "auto"');
             getDataCarByUserIdAndIndex(index).then((res) => {
               setData(res);
               if (!isEmpty(res.url_foto)) {
@@ -76,9 +91,6 @@ export default function Principal({ user, setUser, route }) {
               setLoading(false);
             });
           } else {
-            console.log(
-              'El usuario no existe en la tabla "auto" y empty arroja: ' + empty
-            );
             setData({});
             setLoading(false);
           }
@@ -97,11 +109,13 @@ export default function Principal({ user, setUser, route }) {
     setAddCar(true);
     setIsUpdate(true); //este state servira para indicarle a firestore que no sume un index sino que lo mantenga ya que es una actualizacion del mismo
     setVisible(true);
+    setIsEditIndex(true);
   };
 
   const pressAdd = async () => {
     setIsUpdate(false); //isUpdate se deja en false para indicarle a firestore o insertCar que aumente en +1 el index o mas bien que no deje el mismo index ya que ahora si es agregar
     //hacemos que cada vez que presione este boton consulte primero se la suscripcion esta activa
+    setIsEditIndex(false);
     setVehiculo({});
     const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
 
@@ -219,6 +233,7 @@ export default function Principal({ user, setUser, route }) {
               setData={addCar ? setData : null}
               index={index}
               isUpdate={isUpdate}
+              isEditIndex={isEditIndex}
             />
           </View>
         ) : null}

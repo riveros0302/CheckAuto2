@@ -10,11 +10,7 @@ import {
   combustibleOptions,
 } from '../../utils/preguntas';
 import { isEmpty } from 'lodash';
-import {
-  insertAuto,
-  checkIfUserExists,
-  getLastIndexForUser,
-} from '../../utils/Database/auto';
+import { insertAuto, getLastIndexForUser } from '../../utils/Database/auto';
 import { filterAuto, uploadImage } from '../../utils/uploadPhoto';
 import AvatarCuestionario from '../../components/AvatarCuestionario';
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -32,6 +28,7 @@ export default function Cuestionario(props) {
     setData,
     index,
     isUpdate,
+    isEditIndex,
   } = props;
   const [startIndex, setStartIndex] = useState(0);
   const [title, setTitle] = useState(
@@ -42,6 +39,7 @@ export default function Cuestionario(props) {
   const [values, setValues] = useState({});
   const [localProfile, setLocalProfile] = useState('');
   const [hiddenIMG, setHiddenIMG] = useState(false);
+  console.log('QUE INDEX ESTOY RECIBIENDO: ' + index);
 
   useEffect(() => {
     if (localProfile != '') {
@@ -87,9 +85,17 @@ export default function Cuestionario(props) {
 
     if (isFoto || hiddenIMG) {
       //setData({});
+      if (isEditIndex) {
+        await insertAuto(vehiculoFinal, isUpdate, index);
+        setVisible(false);
+      } else {
+        const lastindex = await getLastIndexForUser();
+        const indexfinal =
+          lastindex == null ? 0 : isUpdate ? lastindex : lastindex + 1;
 
-      await insertAuto(vehiculoFinal, isUpdate);
-      setVisible(false);
+        await insertAuto(vehiculoFinal, isUpdate, indexfinal);
+        setVisible(false);
+      }
     }
   };
 

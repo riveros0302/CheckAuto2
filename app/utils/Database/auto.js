@@ -13,8 +13,11 @@ import { Platform } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
+// Declara una variable para almacenar la última consulta realizada
+let lastQuery = '';
 
-export const insertAuto = async (vehiculo, isUpdate) => {
+export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
+  //el index que recibimos aqui es para identificar el auto que esta seleccionado ya que en esta funcion arrojará siempre el ultimo index lo cual no siempre se necesita
   try {
     // Obtener el UID del usuario actual
     const currentUserUid = auth().currentUser.uid;
@@ -22,13 +25,9 @@ export const insertAuto = async (vehiculo, isUpdate) => {
     // Consultar la colección "car" para obtener la cantidad de documentos con el mismo UID
     const q = firestore()
       .collection('car')
-      .where('createBy', '==', currentUserUid);
-    const querySnapshot = await q.get();
-    const documentosConMismoUid = querySnapshot.size;
-    const lastindex = await getLastIndexForUser();
-    console.log('lasindex: ' + lastindex);
-    const indexfinal =
-      lastindex == null ? 0 : isUpdate ? lastindex : lastindex + 1;
+      .where('createBy', '==', currentUserUid)
+      .where('Index', '==', indexfinal);
+
     console.log('cual es el last index?: ' + indexfinal);
 
     // Crear un nombre para el documento combinando el UID y el índice
@@ -270,56 +269,55 @@ export const getFirstDataCarByUserId = () => {
   });
 };
 
-export const searchFirebase = async (searchText) => {
-  try {
-    const q = firestore()
-      .collection('car')
-      .where('createBy', '==', auth().currentUser.uid); // Buscar documentos del usuario actual
+export function searchFirebase(searchText, index) {
+  return new Promise((resolve, reject) => {
+    const collectionRef = firestore().collection('car');
 
-    const querySnapshot = await q.get();
+    // Realiza la consulta en Firestore
+    const query = collectionRef
+      .where('createBy', '==', auth().currentUser.uid)
+      .where('Index', '==', index);
 
-    if (!querySnapshot.empty) {
-      const document = querySnapshot.docs[0];
+    query
+      .get()
+      .then((querySnapshot) => {
+        if (searchText.trim() === '') {
+          resolve([]); // Resuelve con un array vacío si searchText está vacío
+        } else {
+          const filteredData = [];
 
-      return new Promise(async (resolve, reject) => {
-        try {
-          if (!searchText || !document.id) {
-            // Si searchText o documentId están vacíos, no realizar la consulta y retornar un arreglo vacío
-            resolve([]);
-            return;
-          }
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
 
-          const docRef = firestore().doc(`car/${document.id}`);
-          const docSnapshot = await docRef.get();
+            // Elimina la propiedad "documentos" del objeto y todos los que no quieres que aparescan en la busqueda
+            delete data.documentos;
+            delete data.device;
+            delete data.createBy;
+            delete data.Index;
+            delete data.url_foto;
 
-          if (docSnapshot.exists) {
-            const data = docSnapshot.data();
-            const normalizedSearchText =
-              searchText.charAt(0).toUpperCase() +
-              searchText.slice(1).toLowerCase();
-            const fieldValue = data[normalizedSearchText];
+            // Filtra los datos basados en la clave de búsqueda
+            const filteredItem = {};
+            Object.keys(data).forEach((key) => {
+              if (key.toLowerCase().includes(searchText.toLowerCase())) {
+                filteredItem[key] = data[key];
+              }
+            });
 
-            if (fieldValue !== undefined) {
-              const result = { [normalizedSearchText]: fieldValue };
-              resolve([result]);
-            } else {
-              resolve([]);
+            // Agrega el objeto filtrado al array
+            if (Object.keys(filteredItem).length > 0) {
+              filteredData.push(filteredItem);
             }
-          } else {
-            resolve([]);
-          }
-        } catch (error) {
-          reject(error);
+          });
+
+          resolve(filteredData);
         }
+      })
+      .catch((error) => {
+        reject(error);
       });
-    } else {
-      // Si no se encontraron documentos
-      return null;
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+  });
+}
 
 export const getDocsByUser = (index) => {
   return new Promise(async (resolve, reject) => {

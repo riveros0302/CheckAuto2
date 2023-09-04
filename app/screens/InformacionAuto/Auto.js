@@ -36,7 +36,6 @@ export default function Auto(props) {
     'Numero_Motor',
     'Numero_Chasis',
   ];
-  console.log('que trae data: ' + JSON.stringify(data));
 
   useEffect(() => {
     //excluimos los datos de kysToFilter
@@ -49,7 +48,6 @@ export default function Auto(props) {
     );
 
     setDatos(ordenData);
-    console.log('desde Auto.js: ' + JSON.stringify(ordenData));
   }, []);
 
   const updateData = (newData) => {
@@ -60,7 +58,7 @@ export default function Auto(props) {
   };
 
   useEffect(() => {
-    searchFirebase(searchText).then((result) => {
+    searchFirebase(searchText, index).then((result) => {
       if (result.length > 0) {
         setFilter(result);
       } else {
@@ -78,36 +76,26 @@ export default function Auto(props) {
     <View>
       <ImageBackground source={background} style={styles.image}>
         <Titulo title='GENERAL' />
-        {filter.length === 0 ? (
-          <FlatList
-            data={datos}
-            renderItem={(item) => (
-              <RenderItem item={item} indexx={index} updateData={updateData} />
-            )}
-            numColumns={2}
-            keyExtractor={(item, index) =>
-              index.toString() + JSON.stringify(item)
-            }
-          />
-        ) : (
-          <FlatList
-            data={filter}
-            renderItem={(item) => (
-              <RenderItem item={item} indexx={index} updateData={updateData} />
-            )}
-            numColumns={2}
-            keyExtractor={(item) => item.key}
-          />
-        )}
+
+        <FlatList
+          data={searchText ? filter : datos}
+          renderItem={(item) => (
+            <RenderItem item={item} indexx={index} updateData={updateData} />
+          )}
+          numColumns={2}
+          keyExtractor={(item, index) =>
+            index.toString() + JSON.stringify(item)
+          }
+        />
         <MenuFlotante datos={datos} isPDF={false} />
-        {/*  <SearchBar
+        <SearchBar
           placeholder='Buscar...'
           lightTheme
           round
           value={searchText}
           onChangeText={(text) => setSearchText(text)}
           autoCorrect={false}
-            />*/}
+        />
       </ImageBackground>
     </View>
   );

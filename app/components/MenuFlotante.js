@@ -21,7 +21,13 @@ export default function MenuFlotante(props) {
   const navigation = useNavigation();
   const [imagen, setImagen] = useState(require('../../assets/Iconos/HOME.png'));
   const [array, setArray] = useState([]);
-  const keysToFilter = ['url_foto', 'createBy', 'Index', 'device'];
+  const keysToFilter = [
+    'url_foto',
+    'createBy',
+    'Index',
+    'device',
+    'documentos',
+  ];
 
   useEffect(() => {
     if (main) {

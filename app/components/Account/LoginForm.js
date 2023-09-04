@@ -3,14 +3,11 @@ import { Input, Icon, Button, Image } from 'react-native-elements';
 import React, { useState, useEffect } from 'react';
 import Loading from '../Loading';
 import { primary } from '../../utils/tema';
-import {
-  GoogleSignin,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
 import { isEmpty } from 'lodash';
 import validateEmail from '../../utils/validations';
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import { onGoogleButtonPress } from '../../utils/google';
 
 const screenWidth = Dimensions.get('screen').width;
 const screenHeight = Dimensions.get('screen').height;
@@ -23,50 +20,6 @@ export default function LoginForm({ setUser, toastRef }) {
   const [hidden, setHidden] = useState(false);
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
-
-  GoogleSignin.configure({
-    webClientId:
-      '730964090293-j8qde5d3aqe9vv5r1i4d2q2dc0p22n3b.apps.googleusercontent.com',
-  });
-
-  const onGoogleButtonPress = async () => {
-    setHidden(false); //esto es para que al cancelar el login, el Loading desaparesca
-    try {
-      // Check if your device supports Google Play
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
-      // Get the users ID token
-      const { idToken } = await GoogleSignin.signIn();
-
-      // Create a Google credential with the token
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-      // Sign-in the user with the credential
-      // return auth().signInWithCredential(googleCredential);
-      const user_sign_in = auth().signInWithCredential(googleCredential);
-      user_sign_in
-        .then((user) => {
-          toastRef.current.show('Hola ' + user.user.displayName, 3000);
-        })
-        .catch(async (err) => {
-          if (err.code === 'auth/user-disabled') {
-            toastRef.current.show(
-              'Esta cuenta ha sido deshabilitada temporalmente',
-              3000
-            );
-            await GoogleSignin.revokeAccess();
-            await GoogleSignin.signOut();
-          }
-          setLoading(false);
-        });
-    } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        toastRef.current.show('Inicio de sesión cancelado', 2500);
-        setHidden(true);
-      }
-    }
-  };
 
   // Handle user state changes
   function onAuthStateChanged(user) {
@@ -129,7 +82,7 @@ export default function LoginForm({ setUser, toastRef }) {
         containerStyle={{ marginTop: -200 }}
       />
       <Button
-        onPress={onGoogleButtonPress}
+        onPress={() => onGoogleButtonPress(setHidden, toastRef, setLoading)}
         buttonStyle={styles.btnGoogle}
         containerStyle={styles.containerGoogle}
         icon={

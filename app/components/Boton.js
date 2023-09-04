@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Vibration,
   Keyboard,
+  Platform,
 } from 'react-native';
 import { Button, Icon, Image } from 'react-native-elements';
 import React, { useEffect, useState } from 'react';
@@ -81,6 +82,13 @@ export default function Boton(props) {
         activeOpacity={0.7}
         onPress={isEmpty(item) ? onPress : selected}
         onLongPress={isPrincipal ? null : isDocument ? null : handleLongPress}
+        disabled={
+          isPrincipal || isDocument
+            ? false
+            : Platform.OS == 'android'
+            ? true
+            : false
+        }
       >
         <Image source={icono} style={styles.icono} />
         {isCheck ? (
