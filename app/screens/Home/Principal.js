@@ -19,6 +19,8 @@ import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
 import Purchases from 'react-native-purchases';
 import auth from '@react-native-firebase/auth';
 import { isDisabledAccount } from '../../utils/google';
+import Modal from '../../components/Modal';
+import NewVersion from '../../utils/NewVersion';
 
 export default function Principal({ user, setUser, route, toastRef }) {
   const [visible, setVisible] = useState(true);
@@ -66,14 +68,6 @@ export default function Principal({ user, setUser, route, toastRef }) {
   }, [route]);
 
   useEffect(() => {
-    setLoading(true);
-
-    getAllDataCarByUserId().then((res) => {
-      setNumAutos(res.length);
-    });
-  }, []);
-
-  useEffect(() => {
     if (isFocused) {
       setLoading(true);
       // crearAuto;
@@ -94,6 +88,10 @@ export default function Principal({ user, setUser, route, toastRef }) {
             setData({});
             setLoading(false);
           }
+
+          getAllDataCarByUserId().then((res) => {
+            setNumAutos(res.length);
+          });
         } catch (error) {
           console.log('Error al realizar la consulta:', error);
           setLoading(false);
@@ -122,10 +120,15 @@ export default function Principal({ user, setUser, route, toastRef }) {
     if (customerInfo.entitlements.active['pro']) {
       setVisible(true);
       setAddCar(true);
+      console.log('suscripcion: ' + idSubs);
       switch (idSubs) {
         case 'pp_android:pp1m' || 'pp_android:pp1a':
           if (NumAutos >= 3) {
             console.log('ya tienes 3 vehiculos NumAutos: ' + NumAutos);
+            toastRef.current.show(
+              'Ya has registrado 3 vehiculos, cambiate al plan Pro II',
+              3000
+            );
             setVisible(false);
             setAddCar(false);
           }
@@ -133,6 +136,10 @@ export default function Principal({ user, setUser, route, toastRef }) {
         case 'po_android:po1m' || 'po_android:po1a':
           if (NumAutos >= 6) {
             console.log('ya tienes 6 vehiculos: ' + NumAutos);
+            toastRef.current.show(
+              'Ya has registrado 6 vehiculos, cambiate al plan Pro III',
+              3000
+            );
             setVisible(false);
             setAddCar(false);
           }
@@ -140,6 +147,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
         case 'ppt_android:ppt1m' || 'ppt_android:ppt1a':
           if (NumAutos >= 12) {
             console.log('ya tienes 12 vehiculos: ' + NumAutos);
+            toastRef.current.show('Ya has registrado 12 vehiculos', 3000);
             setVisible(false);
             setAddCar(false);
           }
@@ -158,7 +166,12 @@ export default function Principal({ user, setUser, route, toastRef }) {
   return (
     <View style={styles.vertical}>
       <ImageBackground source={background} style={{ height: '100%' }}>
-        <MenuFlotante main={true} data={data} isPDF={false} />
+        <MenuFlotante
+          main={true}
+          data={data}
+          isPDF={false}
+          toastRef={toastRef}
+        />
 
         <View style={styles.viewperfil}>
           <AvatarCar
@@ -197,6 +210,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
               icono={require('../../../assets/Iconos/ALARMAS.png')}
               item='alarma'
               titulo='NOTIFICACIONES'
+              index={index}
               isPrincipal={true}
             />
             <Boton
@@ -234,12 +248,27 @@ export default function Principal({ user, setUser, route, toastRef }) {
               index={index}
               isUpdate={isUpdate}
               isEditIndex={isEditIndex}
+              toastRef={toastRef}
             />
           </View>
         ) : null}
+        <ShowUpdate />
         <Loading isVisible={loading} text='Cargando datos...' />
       </ImageBackground>
     </View>
+  );
+}
+
+function ShowUpdate() {
+  const [showModal, setShowModal] = useState(true);
+  return (
+    <Modal isVisible={showModal} setIsVisible={setShowModal} close={true}>
+      <ImageBackground source={background} imageStyle={{ borderRadius: 30 }}>
+        <View>
+          <NewVersion setShowModal={setShowModal} />
+        </View>
+      </ImageBackground>
+    </Modal>
   );
 }
 

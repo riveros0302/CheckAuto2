@@ -3,6 +3,8 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { addDataToUser } from './Database/users';
+import analytics from '@react-native-firebase/analytics';
 
 GoogleSignin.configure({
   webClientId:
@@ -10,7 +12,7 @@ GoogleSignin.configure({
 });
 
 export const onGoogleButtonPress = async (setHidden, toastRef, setLoading) => {
-  setHidden(false); //esto es para que al cancelar el login, el Loading desaparesca
+  setHidden(false); // Esto es para que al cancelar el inicio de sesión, el Loading desaparezca
   try {
     // Check if your device supports Google Play
     await GoogleSignin.hasPlayServices({
@@ -23,11 +25,11 @@ export const onGoogleButtonPress = async (setHidden, toastRef, setLoading) => {
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
     setLoading(true);
     // Sign-in the user with the credential
-    // return auth().signInWithCredential(googleCredential);
     const user_sign_in = auth().signInWithCredential(googleCredential);
     user_sign_in
       .then((user) => {
         toastRef.current.show('Hola ' + user.user.displayName, 3000);
+        addDataToUser();
       })
       .catch(async (err) => {
         if (err.code === 'auth/user-disabled') {
@@ -40,10 +42,26 @@ export const onGoogleButtonPress = async (setHidden, toastRef, setLoading) => {
         }
         setLoading(false);
       });
+
+    // Registro de evento de inicio de sesión exitoso
+    await analytics().logEvent('sesionGoogle', {
+      id: 3745092,
+      item: auth().currentUser.uid,
+      description: ['round neck', 'long sleeved'],
+      size: 'L',
+    });
   } catch (error) {
     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
       toastRef.current.show('Inicio de sesión cancelado', 2500);
       setHidden(true);
+
+      // Registro de evento de inicio de sesión cancelado
+      await analytics().logEvent('google_sign_in_cancelled');
+    } else {
+      // Registro de evento de error de inicio de sesión
+      await analytics().logEvent('google_sign_in_error', {
+        error_message: error.message,
+      });
     }
   }
 };

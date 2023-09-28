@@ -8,14 +8,15 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { CheckBox } from 'react-native-elements';
-import { secondary } from '../utils/tema';
+import { secondary, primary } from '../utils/tema';
 import { useRevenueCat } from '../utils/RevenueCat/RevenueCatProvider';
 import Purchases from 'react-native-purchases';
 import { useNavigation } from '@react-navigation/native';
+import analytics from '@react-native-firebase/analytics';
 
 export default function BotonSuscripcion(props) {
   const [planSelected, setPlanSelected] = useState(0);
-  const { selectedIndex, idSub, tiempo, titulo, packages, setReload } = props;
+  const { idSub, tiempo, titulo, packages, setReload, idSubs } = props;
   const { user, purchasePackage, restorePermissions } = useRevenueCat();
   const [paquete, setPaquete] = useState(null);
   const navigation = useNavigation();
@@ -25,22 +26,53 @@ export default function BotonSuscripcion(props) {
     setPaquete(firstPackage);
 
     Purchases.addCustomerInfoUpdateListener(async (info) => {
-      //updateCustomerInformation(info);
       navigation.navigate('home');
       setReload(false);
     });
   }, [idSub]);
 
-  const onPurchase = (pack) => {
-    // Purchase the package
-    purchasePackage(pack);
-    setPlanSelected(1);
+  const onPurchase = async (pack) => {
     setReload(true);
+
+    try {
+      // Intenta realizar la suscripción
+      await purchasePackage(pack);
+      setPlanSelected(1);
+      setReload(true); // La suscripción se completó con éxito
+
+      // Registra un evento de compra exitosa
+      await analytics().logEvent('purchase_success', {
+        item_id: pack.identifier,
+        item_name: pack.product.title,
+        item_price: pack.product.priceString,
+        currency: pack.product.currencyCode,
+      });
+    } catch (error) {
+      // Maneja el caso en que la suscripción se cancele o falle
+      if (error.code === 'USER_CANCELED') {
+        // El usuario canceló la operación de suscripción
+        console.log('El usuario canceló la suscripción');
+      } else {
+        // Maneja otros errores aquí si es necesario
+        console.error('Error en la suscripción:', error);
+      }
+    } finally {
+      // Establece subscriptionInProgress en false independientemente del resultado
+      setReload(false);
+    }
   };
 
   return (
     <TouchableOpacity
-      style={styles.botonTouch}
+      style={{
+        borderWidth: 5,
+        borderColor:
+          paquete?.product.identifier === idSubs ? primary : secondary,
+        borderRadius: 50,
+        marginVertical: 10,
+        width: '90%',
+        alignSelf: 'center',
+      }}
       key={paquete?.identifier}
       onPress={() => onPurchase(paquete)}
     >
@@ -58,14 +90,6 @@ export default function BotonSuscripcion(props) {
 }
 
 const styles = StyleSheet.create({
-  botonTouch: {
-    borderWidth: 5,
-    borderColor: secondary,
-    borderRadius: 50,
-    marginVertical: 10,
-    width: '90%',
-    alignSelf: 'center',
-  },
   viewBoton: {
     flexDirection: 'row',
   },

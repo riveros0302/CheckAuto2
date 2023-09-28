@@ -6,6 +6,7 @@ import {
   Switch,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Button, Icon, Input } from 'react-native-elements';
@@ -19,15 +20,54 @@ var pkg = require('../../../app.json');
 import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
 import Modal from '../../components/Modal';
 import { privacidad } from '../../utils/politicas';
+import SuscripcionView from '../../components/SuscripcionView';
+import { deleteUserAccount } from '../../utils/Database/auto';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Ajustes({ setUser }) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { restorePermissions, logoutRC } = useRevenueCat();
+  const { logoutRC, idSubs } = useRevenueCat();
   const [isVisible, setIsVisible] = useState(false);
+  const [isVisibleServicio, setIsVisibleServicio] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [txtLoad, setTxtLoad] = useState('Cerrando Sesión');
+  const [txtInfoSuscription, setTxtInfoSuscription] =
+    useState('Contratar plan');
+  const [details, setDetails] = useState('');
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    switch (idSubs) {
+      case 'pp_android:pp1m':
+        setTxtInfoSuscription('Plan Pro I /Mes');
+        setDetails('Puedes registrar hasta 3 vehículos');
+        break;
+      case 'po_android:po1m':
+        setTxtInfoSuscription('Plan Pro II /Mes');
+        break;
+      case 'ppt_android:ppt1m':
+        setTxtInfoSuscription('Plan Pro III /Mes');
+        break;
+      case 'pp_android:pp1a':
+        setTxtInfoSuscription('Plan Pro I /Año');
+        setDetails('Puedes registrar hasta 3 vehículos');
+        break;
+      case 'po_android:po1a':
+        setTxtInfoSuscription('Plan Pro II /Año');
+        break;
+      case 'ppt_android:ppt1a':
+        setTxtInfoSuscription('Plan Pro III /Año');
+        break;
+
+      default:
+        break;
+    }
+  }, []);
 
   const signOut = async () => {
     try {
+      setTxtLoad('Cerrando Sesión...');
       setLoading(true);
       await auth().signOut();
 
@@ -44,12 +84,51 @@ export default function Ajustes({ setUser }) {
     }
   };
 
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Eliminar Cuenta',
+      'Al eliminar tu cuenta se eliminarán todos tus datos incluyendo documentos que hayas subido a checkAuto ¿Estás seguro de que deseas eliminar esta cuenta?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar Cuenta',
+          style: 'destructive',
+          onPress: deleteAccount,
+        },
+      ]
+    );
+  };
+
+  const deleteAccount = async () => {
+    setTxtLoad('Eliminando Cuenta...');
+    setLoading(true);
+
+    await deleteUserAccount()
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(async () => {
+        setLoading(false);
+        await GoogleSignin.revokeAccess();
+        await GoogleSignin.signOut();
+        setUser();
+        navigation.navigate('home');
+      });
+  };
+
   const toggleSwitch = () => {
     setIsEnabled((previousState) => !previousState);
   };
 
   const callPolitics = () => {
     setIsVisible(true);
+  };
+
+  const callService = () => {
+    setIsVisibleServicio(true);
   };
 
   return (
@@ -84,33 +163,35 @@ export default function Ajustes({ setUser }) {
               >
                 <View>
                   <Text style={styles.txt}>Suscripción</Text>
-                  <Text style={styles.txtvalue}>Plan Basico</Text>
+                  <Text style={styles.txtvalue}>{txtInfoSuscription}</Text>
                 </View>
                 <Button
                   title={'CAMBIAR'}
                   containerStyle={styles.btnContainer}
                   buttonStyle={styles.btn}
                   titleStyle={styles.titlebtn}
+                  onPress={() => setShowModal(true)}
                 />
               </View>
             </View>
           </View>
-          <View style={styles.viewContainer}>
-            <View style={styles.viewRow}>
-              <Text style={styles.txt}>Notificaciones</Text>
-              <Switch
-                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                thumbColor={isEnabled ? primary : '#f4f3f4'}
-                ios_backgroundColor='#3e3e3e'
-                onValueChange={toggleSwitch} // Asignar la función toggleSwitch al evento onValueChange
-                value={isEnabled} // Usar la variable de estado isEnabled como valor del interruptor
-                style={{ marginRight: 20 }}
-              />
-            </View>
-          </View>
+
           <TouchableOpacity style={styles.viewContainer} onPress={callPolitics}>
             <View style={styles.viewRow}>
               <Text style={styles.txt}>Politicas de Privacidad</Text>
+              <Icon
+                type='material-community'
+                name='check'
+                color={'green'}
+                size={30}
+                style={{ marginRight: 20 }}
+              />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.viewContainer} onPress={callService}>
+            <View style={styles.viewRow}>
+              <Text style={styles.txt}>Condiciones de servicio</Text>
               <Icon
                 type='material-community'
                 name='check'
@@ -146,7 +227,7 @@ export default function Ajustes({ setUser }) {
           />
           <Button
             title={'Eliminar Cuenta'}
-            onPress={signOut}
+            onPress={confirmDeleteAccount}
             containerStyle={{
               borderRadius: 10,
               width: '90%',
@@ -160,22 +241,7 @@ export default function Ajustes({ setUser }) {
             }}
             buttonStyle={{ backgroundColor: 'white' }}
           />
-          <Button
-            title={'Restaurar Suscripción'}
-            onPress={restorePermissions}
-            containerStyle={{
-              borderRadius: 10,
-              width: '90%',
-              alignSelf: 'center',
-              marginTop: 18,
-            }}
-            titleStyle={{
-              fontWeight: 'bold',
-              fontSize: 20,
-              color: 'red',
-            }}
-            buttonStyle={{ backgroundColor: 'white' }}
-          />
+
           <Text
             style={{
               color: secondary,
@@ -188,20 +254,45 @@ export default function Ajustes({ setUser }) {
           </Text>
         </ScrollView>
 
-        <Loading isVisible={loading} text='Cerrando sesión' />
+        <Loading isVisible={loading} text={txtLoad} />
         <Politicas
           isVisible={isVisible}
           setIsVisible={setIsVisible}
           privacidad={privacidad}
+        />
+        <Servicios
+          isVisible={isVisibleServicio}
+          setIsVisible={setIsVisibleServicio}
+          privacidad={privacidad}
+        />
+        <Suscripciones
+          showModal={showModal}
+          setShowModal={setShowModal}
+          idSubs={idSubs}
         />
       </ImageBackground>
     </View>
   );
 }
 
+function Suscripciones(props) {
+  const { showModal, setShowModal, idSubs } = props;
+  const { packages } = useRevenueCat();
+  return (
+    <Modal
+      isVisible={showModal}
+      setIsVisible={setShowModal}
+      colorModal={'white'}
+      close={true}
+    >
+      <SuscripcionView idSubs={idSubs ? idSubs : null} isSetting={true} />
+    </Modal>
+  );
+}
+
 function Politicas(props) {
   const { isVisible, setIsVisible, privacidad } = props;
-  console.log(privacidad);
+
   return (
     <Modal
       isVisible={isVisible}
@@ -211,6 +302,29 @@ function Politicas(props) {
     >
       <ScrollView style={{ height: '75%' }}>
         <Text style={styles.titlePolitics}>Politicas de Privacidad</Text>
+        <Text style={styles.politics}>{privacidad}</Text>
+      </ScrollView>
+      <Button
+        title={'Aceptar'}
+        buttonStyle={{ marginTop: 20, borderRadius: 30 }}
+        onPress={() => setIsVisible(false)}
+      />
+    </Modal>
+  );
+}
+
+function Servicios(props) {
+  const { isVisible, setIsVisible, privacidad } = props;
+
+  return (
+    <Modal
+      isVisible={isVisible}
+      setIsVisible={setIsVisible}
+      colorModal={'white'}
+      close={false}
+    >
+      <ScrollView style={{ height: '75%' }}>
+        <Text style={styles.titlePolitics}>Condiciones de servicio</Text>
         <Text style={styles.politics}>{privacidad}</Text>
       </ScrollView>
       <Button

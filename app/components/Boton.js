@@ -18,6 +18,7 @@ import InputInfo from './InputInfo';
 import { patente, descripciones } from '../utils/Descripcion/descGeneral';
 import { updateAuto, getInfoAutoIndex } from '../utils/Database/auto';
 import ShowPDF from './ShowPDF';
+import analytics from '@react-native-firebase/analytics';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -36,20 +37,28 @@ export default function Boton(props) {
     isDocument,
     isCheck,
     isPrincipal,
+    isNotification,
   } = props;
   const navigation = useNavigation();
   const [isVisible, setIsVisible] = useState(false);
 
-  const selected = () => {
+  const selected = async () => {
     switch (item) {
       case 'id':
         navigation.navigate('Mis Documentos', { index });
         break;
       case 'auto':
+        await analytics().logEvent('btn_General', {
+          id: 'id_de_prueba',
+          item: 'Presiono boton de General',
+          description: ['descripcion1', 'sexo'],
+          size: 'L',
+        });
         navigation.navigate('Mi Auto', { data, index });
         break;
       case 'alarma':
-        navigation.navigate('Mi Alarma');
+        console.log('index recibido en Boton.js: ' + index);
+        navigation.navigate('Mi Alarma', { index });
         break;
       case 'ajustes':
         navigation.navigate('Mis Ajustes');
@@ -81,9 +90,17 @@ export default function Boton(props) {
         style={styles.button}
         activeOpacity={0.7}
         onPress={isEmpty(item) ? onPress : selected}
-        onLongPress={isPrincipal ? null : isDocument ? null : handleLongPress}
+        onLongPress={
+          isPrincipal
+            ? null
+            : isDocument
+            ? null
+            : isNotification
+            ? null
+            : handleLongPress
+        }
         disabled={
-          isPrincipal || isDocument
+          isPrincipal || isDocument || isNotification
             ? false
             : Platform.OS == 'android'
             ? true

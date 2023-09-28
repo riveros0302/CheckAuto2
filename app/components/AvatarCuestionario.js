@@ -1,4 +1,10 @@
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  PermissionsAndroid,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Avatar } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
@@ -25,6 +31,27 @@ export default function AvatarCuestionario(props) {
       quality
     );
     return response.uri;
+  };
+
+  const permissionStorage = async () => {
+    const permissions = [
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+    ];
+
+    const granted = await PermissionsAndroid.requestMultiple(permissions);
+
+    if (
+      granted[PermissionsAndroid.PERMISSIONS.CAMERA] ===
+        PermissionsAndroid.RESULTS.GRANTED &&
+      granted[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] ===
+        PermissionsAndroid.RESULTS.GRANTED
+    ) {
+      console.log('Permisos concedidos: cámara y almacenamiento');
+      pickImage();
+    } else {
+      console.log('Al menos uno de los permisos fue denegado');
+    }
   };
 
   const pickImage = async () => {
@@ -83,7 +110,7 @@ export default function AvatarCuestionario(props) {
         >
           <Avatar.Accessory
             size={30}
-            onPress={pickImage}
+            onPress={permissionStorage}
             style={{ backgroundColor: 'grey' }}
           />
         </Avatar>

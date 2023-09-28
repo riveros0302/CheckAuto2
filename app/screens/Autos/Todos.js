@@ -17,38 +17,61 @@ import {
   deleteCar,
   getFirstDataCarByUserId,
 } from '../../utils/Database/auto';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Purchases from 'react-native-purchases';
 import auth from '@react-native-firebase/auth';
+import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
 import Loading from '../../components/Loading';
 
-export default function Todos() {
+export default function Todos(props) {
+  const { route } = props;
+  const { toastRef } = route.params;
   const [autos, setAutos] = useState([]);
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const isFocused = useIsFocused();
+  const { idSubs } = useRevenueCat();
 
   useEffect(() => {
-    const getCar = async () => {
-      setLoading(true);
-      const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
-      if (customerInfo.entitlements.active['pro']) {
-        console.log('SUSCRIPCION ACTIVA');
-        getAllDataCarByUserId().then((res) => {
-          const existingIds = autos.map((auto) => auto.id);
-          const newAutos = res.filter((auto) => !existingIds.includes(auto.id));
-          setAutos((prevAutos) => [...prevAutos, ...newAutos]);
-          setLoading(false);
-        });
-      } else {
-        getFirstDataCarByUserId().then((res) => {
-          setAutos(res);
-          setLoading(false);
-        });
-      }
-    };
-    getCar();
+    if (isFocused) {
+      const getCar = async () => {
+        setLoading(true);
+        const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
+        if (customerInfo.entitlements.active['pro']) {
+          switch (idSubs) {
+            case 'pp_android:pp1m' || 'pp_android:pp1a':
+              getAutos(3);
+              break;
+            case 'po_android:po1m' || 'po_android:po1a':
+              getAutos(6);
+              break;
+            case 'ppt_android:ppt1m' || 'ppt_android:ppt1a':
+              getAutos(12);
+              break;
+
+            default:
+              break;
+          }
+        } else {
+          getFirstDataCarByUserId().then((res) => {
+            setAutos(res);
+            setLoading(false);
+          });
+        }
+      };
+      getCar();
+    }
   }, []);
+
+  const getAutos = async (num) => {
+    await getAllDataCarByUserId(num).then((res) => {
+      const existingIds = autos.map((auto) => auto.id);
+      const newAutos = res.filter((auto) => !existingIds.includes(auto.id));
+      setAutos((prevAutos) => [...prevAutos, ...newAutos]);
+      setLoading(false);
+    });
+  };
 
   return (
     <View>
@@ -92,8 +115,6 @@ function BotonAuto(props) {
   const handleDelete = () => {
     deleteCar(item.item.Index)
       .then((res) => {
-        console.log(res);
-
         updateAutos((prevAutos) =>
           prevAutos.filter((auto) => auto.Index !== item.item.Index)
         );

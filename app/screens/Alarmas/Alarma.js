@@ -6,37 +6,55 @@ import MenuFlotante from '../../components/MenuFlotante';
 import Titulo from '../../components/Titulo';
 import Boton from '../../components/Boton';
 import Calendario from './Calendario';
+import { getDatesFromUser } from '../../utils/Database/users';
 
-export default function Alarma() {
-  const [date1, setDate1] = useState(new Date());
-  const [date2, setDate2] = useState(new Date());
+export default function Alarma(props) {
+  const { route } = props;
+  const { index } = route.params;
+  const [date1, setDate1] = useState(null);
+  const [date2, setDate2] = useState(null);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-  const [index, setIndex] = useState();
+  const [indexNot, setIndexNot] = useState();
 
   const showCalendar = (id) => {
     setDatePickerVisible(true);
-    setIndex(id);
+    setIndexNot(id);
   };
+
+  useEffect(() => {
+    const getDatesFirebase = async () => {
+      try {
+        const { date1, date2 } = await getDatesFromUser(index);
+        setDate1(date1);
+        setDate2(date2);
+      } catch (error) {}
+    };
+    getDatesFirebase();
+  }, []);
 
   return (
     <View>
       <ImageBackground source={background} style={styles.back}>
         <Titulo title='NOTIFICACIONES' />
-        <View style={styles.container}>
-          <Boton
-            icono={require('../../../assets/Iconos/EDITAR_FOTO.png')}
-            titulo='PERMISO CIRUCLACIÓN'
-            onPress={() => showCalendar(1)}
-            fontSize={15}
-            value={date1.toLocaleDateString()}
-          />
-          <Boton
-            icono={require('../../../assets/Iconos/EDITAR_FOTO.png')}
-            titulo='REVISIÓN TÉCNICA'
-            onPress={() => showCalendar(2)}
-            fontSize={15}
-            value={date2.toLocaleDateString()}
-          />
+        <View>
+          <View style={styles.container}>
+            <Boton
+              icono={require('../../../assets/Iconos/CIRCULACION.png')}
+              titulo='PERMISO CIRUCLACIÓN'
+              onPress={() => showCalendar(1)}
+              fontSize={15}
+              value={date1 instanceof Date ? '' : date1}
+              isNotification={true}
+            />
+            <Boton
+              icono={require('../../../assets/Iconos/REVISION_TEC.png')}
+              titulo='REVISIÓN TÉCNICA'
+              onPress={() => showCalendar(2)}
+              fontSize={15}
+              value={date2 instanceof Date ? '' : date2}
+              isNotification={true}
+            />
+          </View>
         </View>
 
         <View style={styles.container}></View>
@@ -47,9 +65,11 @@ export default function Alarma() {
           date1={date1}
           setDate2={setDate2}
           date2={date2}
-          index={index}
+          index={indexNot}
+          indexCar={index}
         />
-        <MenuFlotante />
+
+        <MenuFlotante isNotification={true} />
       </ImageBackground>
     </View>
   );

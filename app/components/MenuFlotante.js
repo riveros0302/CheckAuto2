@@ -4,6 +4,10 @@ import BotonFlotante from './BotonFlotante';
 import { useNavigation } from '@react-navigation/native';
 import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
+import Modal from './Modal';
+import { Button, Icon } from 'react-native-elements';
+import { generatePDF } from '../utils/PdfAuto';
+import { downloadImage } from '../utils/uploadPhoto';
 
 export default function MenuFlotante(props) {
   const {
@@ -14,13 +18,18 @@ export default function MenuFlotante(props) {
     index,
     titulo,
     pdfurl,
+    imageUri,
     setReload,
     setTxtLoad,
     isSetting,
+    toastRef,
+    isShowPDF,
+    isNotification,
   } = props;
   const navigation = useNavigation();
   const [imagen, setImagen] = useState(require('../../assets/Iconos/HOME.png'));
   const [array, setArray] = useState([]);
+  const [isVisible, setIsVisible] = useState(false);
   const keysToFilter = [
     'url_foto',
     'createBy',
@@ -42,58 +51,21 @@ export default function MenuFlotante(props) {
     }
   }, [datos, data, main]);
 
-  //DESCARGAR EL ARCHIVO PDF DESDE FIREBASE
-  const downloadPdfFromFirebase = async () => {
-    setReload(true);
-    setTxtLoad('Generando PDF...');
-    const { config, fs } = RNFetchBlob;
-    const downloads = fs.dirs?.DownloadDir;
-    const localFilePath = downloads + '/' + titulo + index + '.pdf';
-
-    // Verificar si el archivo ya existe en la ubicación local
-    const fileExists = await fs.exists(localFilePath);
-
-    // Si el archivo existe, eliminarlo antes de descargar el nuevo
-    if (fileExists) {
-      try {
-        await fs.unlink(localFilePath);
-        console.log('Archivo existente eliminado:', localFilePath);
-      } catch (error) {
-        console.error('Error al eliminar el archivo existente:', error);
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      config({
-        fileCache: true,
-        addAndroidDownloads: {
-          useDownloadManager: true,
-          notification: true,
-          path: localFilePath,
-        },
-      })
-        .fetch('GET', pdfurl.uri)
-        .then((res) => {
-          console.log('Archivo PDF descargado correctamente:', res.path());
-          resolve(res.path()); // Resolvemos la promesa con la ruta del archivo descargado
-        })
-        .catch((e) => {
-          console.error('Error al descargar el archivo:', e);
-          reject(e); // Rechazamos la promesa con el error en caso de falla
-        });
-    });
-  };
-
   //COMPARTIR EL ARCHIVO PDF UNA VEZ DESCARGADO
-  const sharePDF = async () => {
-    downloadPdfFromFirebase().then(async (res) => {
+  const shareFile = async () => {
+    downloadImage(
+      pdfurl ? pdfurl : null,
+      imageUri ? imageUri : null,
+      titulo,
+      index,
+      setReload,
+      setTxtLoad
+    ).then(async (res) => {
       setReload(false);
-      // console.log('recibiendo url local del pdf: ' + res);
       try {
         const shareOptions = {
-          // message: 'compartir pdff',
           url: `file://${res}`,
-          type: 'application/pdf',
+          type: pdfurl ? 'application/pdf' : 'image/jpeg',
         };
 
         await Share.open(shareOptions);
@@ -102,6 +74,49 @@ export default function MenuFlotante(props) {
       }
     });
   };
+
+  const ifMain = () => {
+    if (main) {
+      navigation.navigate('todos', { toastRef });
+    } else {
+      if (isShowPDF) {
+        navigation.navigate('home');
+      } else {
+        navigation.goBack();
+      }
+    }
+  };
+
+  const ifpdf = () => {
+    if (isPDF) {
+      shareFile();
+    } else {
+      setIsVisible(true);
+    }
+  };
+
+  return (
+    <View style={styles.view}>
+      <BotonFlotante source={imagen} posicion={'flex-start'} onpress={ifMain} />
+      {!isSetting && !isNotification && (
+        <BotonFlotante
+          source={require('../../assets/Iconos/COMPARTIR.png')}
+          posicion={'flex-end'}
+          onpress={ifpdf}
+        />
+      )}
+      <OptionShare
+        isVisible={isVisible}
+        setIsVisible={setIsVisible}
+        array={array}
+        data={data}
+      />
+    </View>
+  );
+}
+
+function OptionShare(props) {
+  const { isVisible, setIsVisible, array, data } = props;
 
   const shareAuto = async () => {
     try {
@@ -116,49 +131,60 @@ export default function MenuFlotante(props) {
       const shareOptions = {
         message: keysMessage,
       };
+      setIsVisible(false);
       const result = await Share.open(shareOptions);
 
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // Compartido con alguna aplicación específica (result.activityType)
+          console.log('compartida con alguna aplicacion');
         } else {
           // Compartido
+          console.log('compartido');
         }
       } else if (result.action === Share.dismissedAction) {
         // Compartir cancelado
+        console.log('compartir cnacelado');
       }
     } catch (error) {
       console.log('Error al compartirrr:', error.message);
     }
   };
 
-  const ifMain = () => {
-    if (main) {
-      navigation.navigate('todos');
-    } else {
-      navigation.goBack();
-    }
-  };
-
-  const ifpdf = () => {
-    if (isPDF) {
-      sharePDF();
-    } else {
-      shareAuto();
+  const crearPdf = async () => {
+    try {
+      const uri = await generatePDF(data);
+      console.log('url del pdf: ' + uri);
+    } catch (error) {
+      console.log(error);
     }
   };
 
   return (
-    <View style={styles.view}>
-      <BotonFlotante source={imagen} posicion={'flex-start'} onpress={ifMain} />
-      {!isSetting && (
-        <BotonFlotante
-          source={require('../../assets/Iconos/COMPARTIR.png')}
-          posicion={'flex-end'}
-          onpress={ifpdf}
-        />
-      )}
-    </View>
+    <Modal
+      isVisible={isVisible}
+      setIsVisible={setIsVisible}
+      colorModal={'white'}
+      close={true}
+    >
+      <Text style={styles.titulo}>
+        ¿Como quieres compartir la información de tu vehiculo?
+      </Text>
+      <Button
+        title={'Datos basicos'}
+        buttonStyle={styles.btn}
+        titleStyle={styles.txt}
+        icon={<Icon type='material-community' name='format-list-numbered' />}
+        onPress={shareAuto}
+      />
+      <Button
+        title={'Datos completos'}
+        buttonStyle={styles.btn}
+        titleStyle={styles.txt}
+        icon={<Icon type='material-community' name='file-pdf-box' />}
+        onPress={crearPdf}
+      />
+    </Modal>
   );
 }
 
@@ -167,5 +193,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     zIndex: 1,
+  },
+  btn: {
+    backgroundColor: 'white',
+  },
+  txt: {
+    color: 'grey',
+  },
+  titulo: {
+    alignSelf: 'center',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    width: '90%',
+    fontSize: 15,
+    marginBottom: 15,
   },
 });

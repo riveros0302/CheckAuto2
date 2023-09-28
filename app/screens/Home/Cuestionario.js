@@ -1,19 +1,30 @@
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Modal from '../../components/Modal';
 import { Button, Icon, Image, Input } from 'react-native-elements';
-import { primary, botoncolor } from '../../utils/tema';
+import { primary, secondary } from '../../utils/tema';
 import {
   pregunta,
   placeh,
   id,
   combustibleOptions,
+  tipoOptions,
+  transmisionOptions,
 } from '../../utils/preguntas';
 import { isEmpty } from 'lodash';
 import { insertAuto, getLastIndexForUser } from '../../utils/Database/auto';
 import { filterAuto, uploadImage } from '../../utils/uploadPhoto';
 import AvatarCuestionario from '../../components/AvatarCuestionario';
 import { SelectList } from 'react-native-dropdown-select-list';
+import Loading from '../../components/Loading';
+import { descripciones } from '../../utils/Descripcion/descGeneral';
 
 export default function Cuestionario(props) {
   const {
@@ -29,17 +40,21 @@ export default function Cuestionario(props) {
     index,
     isUpdate,
     isEditIndex,
+    toastRef,
   } = props;
   const [startIndex, setStartIndex] = useState(0);
   const [title, setTitle] = useState(
     '¡Vamos a completar la información de tu vehiculo!'
   );
   const [enabled, setEnabled] = useState(true);
-  const [isFoto, setIsFoto] = useState(false);
+
   const [values, setValues] = useState({});
   const [localProfile, setLocalProfile] = useState('');
   const [hiddenIMG, setHiddenIMG] = useState(false);
-  console.log('QUE INDEX ESTOY RECIBIENDO: ' + index);
+  const [loadModal, setLoadModal] = useState(false);
+  const [isFoto, setIsFoto] = useState(false); //este state estaba en cuestionario pero lo pasamos para aca para poder usarlo aqui y enviarlo a cuestionario
+  const [showModalInfo, setShowModalInfo] = useState(false);
+  const [rindex, setRindex] = useState();
 
   useEffect(() => {
     if (localProfile != '') {
@@ -58,6 +73,7 @@ export default function Cuestionario(props) {
   }, []);
 
   const next = async () => {
+    setLoadModal(true);
     subirFotoLocal();
 
     setVehiculo(values);
@@ -70,12 +86,13 @@ export default function Cuestionario(props) {
       Patente: '',
       Tipo: '',
       Combustible: '',
+      Aceite: '',
       Aire: '',
       Rueda: '',
       Luces: '',
       Transmision: '',
       Motor: '',
-      Autonomia: '',
+      Rendimiento: '',
       N_motor: '',
       N_chasis: '',
     };
@@ -87,15 +104,20 @@ export default function Cuestionario(props) {
       //setData({});
       if (isEditIndex) {
         await insertAuto(vehiculoFinal, isUpdate, index);
+        setAddCar(false);
         setVisible(false);
+        setLoadModal(false);
       } else {
         const lastindex = await getLastIndexForUser();
         const indexfinal =
           lastindex == null ? 0 : isUpdate ? lastindex : lastindex + 1;
 
         await insertAuto(vehiculoFinal, isUpdate, indexfinal);
+        setAddCar(false);
         setVisible(false);
+        setLoadModal(false);
       }
+      toastRef.current.show('Vehiculo registrado correctamente', 3000);
     }
   };
 
@@ -193,6 +215,41 @@ export default function Cuestionario(props) {
     }
   };
 
+  const selectView = (option, realIndex, res, index) => {
+    return (
+      <View key={index} style={styles.pickerContainer}>
+        <View style={styles.selectContainer}>
+          <SelectList
+            setSelected={(e) => {
+              setValue(id[realIndex], e);
+            }}
+            value={values[id[realIndex]]}
+            data={option}
+            search={false}
+            placeholder={res}
+            boxStyles={styles.selectBox}
+            inputStyles={styles.selectInput}
+            dropdownStyles={styles.dropDownInput}
+          />
+        </View>
+        <View style={styles.iconContainer}>
+          <Icon
+            name='information-outline'
+            type='material-community'
+            color={descripciones[id[realIndex]] ? primary : secondary}
+            disabledStyle={styles.block}
+            disabled={descripciones[id[realIndex]] ? false : true}
+            size={35}
+            onPress={() => {
+              setShowModalInfo(true);
+              setRindex(realIndex);
+            }}
+          />
+        </View>
+      </View>
+    );
+  };
+
   const renderInput = () => {
     const endIndex = Math.min(startIndex + 6, placeh.length);
 
@@ -203,41 +260,14 @@ export default function Cuestionario(props) {
       }
 
       const realIndex = startIndex + index; // Calcular el índice real
-
       switch (res) {
         case 'Combustible':
-          return (
-            <View key={index} style={styles.pickerContainer}>
-              <SelectList
-                setSelected={(e) => {
-                  setValue(id[realIndex], e); // Actualizar el valor seleccionado en el estado
-                }}
-                value={values[id[realIndex]]}
-                data={combustibleOptions}
-                search={false}
-                placeholder={res}
-                boxStyles={{
-                  borderRadius: 40,
-                  width: '94%',
-                  alignSelf: 'center',
-                  backgroundColor: '#d6d6d6',
-                  borderWidth: 0,
-                }}
-                inputStyles={{
-                  fontWeight: 'bold',
-                  fontSize: 15,
-                  color: 'grey',
-                }}
-                dropdownStyles={{
-                  width: '90%',
-                  alignSelf: 'center',
-                  backgroundColor: '#d6d6d6',
-                  borderWidth: 0,
-                }}
-              />
-            </View>
-          );
+          return selectView(combustibleOptions, realIndex, res, index);
 
+        case 'Tipo de Vehiculo':
+          return selectView(tipoOptions, realIndex, res, index);
+        case 'Transmisión':
+          return selectView(transmisionOptions, realIndex, res, index);
         case 'Placa Patente':
           return (
             <Input
@@ -251,6 +281,20 @@ export default function Cuestionario(props) {
                 borderBottomWidth: 0,
               }}
               maxLength={8}
+              rightIcon={
+                <Icon
+                  name='information-outline'
+                  type='material-community'
+                  color={descripciones[id[realIndex]] ? primary : secondary}
+                  disabledStyle={styles.block}
+                  disabled={descripciones[id[realIndex]] ? false : true}
+                  size={35}
+                  onPress={() => {
+                    setShowModalInfo(true);
+                    setRindex(realIndex);
+                  }}
+                />
+              }
             />
           );
 
@@ -264,8 +308,24 @@ export default function Cuestionario(props) {
               value={values[id[realIndex]] || ''} // Asignar el valor almacenado del input
               inputStyle={styles.input}
               inputContainerStyle={{
-                borderBottomWidth: 0,
+                borderBottomWidth: 0, // Para eliminar la línea inferior del campo de entrada
+                flexDirection: 'row', // Para alinear el icono a la derecha
+                alignItems: 'center', // Para centrar verticalmente el icono
               }}
+              rightIcon={
+                <Icon
+                  name='information-outline'
+                  type='material-community'
+                  color={descripciones[id[realIndex]] ? primary : secondary}
+                  size={35}
+                  disabledStyle={styles.block}
+                  disabled={descripciones[id[realIndex]] ? false : true}
+                  onPress={() => {
+                    setShowModalInfo(true);
+                    setRindex(realIndex);
+                  }}
+                />
+              }
             />
           );
       }
@@ -299,6 +359,13 @@ export default function Cuestionario(props) {
 
         <Button
           buttonStyle={styles.boton}
+          disabled={
+            isFoto || hiddenIMG
+              ? !isEmpty(vehiculo.url_foto) || !isEmpty(localProfile)
+                ? false
+                : true
+              : false
+          }
           onPress={isFoto || hiddenIMG ? next : showMoreInputs}
           icon={
             <Icon
@@ -321,30 +388,95 @@ export default function Cuestionario(props) {
       close={addCar}
       setAddCar={setAddCar}
     >
-      {isFoto ? (
-        <View>
-          <Text style={styles.title}>{title}</Text>
-          <View style={{ alignItems: 'center' }}>
-            <AvatarCuestionario
-              vehiculo={values}
-              setVehiculo={setValues}
-              profile={!isEmpty(vehiculo) ? vehiculo.url_foto : localProfile}
-              setProfile={setLocalProfile}
-              isPrincipal={true}
-              index={index}
-            />
+      <View>
+        {isFoto ? (
+          <View>
+            <Text style={styles.title}>{title}</Text>
+            <View style={{ alignItems: 'center' }}>
+              <AvatarCuestionario
+                vehiculo={values}
+                setVehiculo={setValues}
+                profile={!isEmpty(vehiculo) ? vehiculo.url_foto : localProfile}
+                setProfile={setLocalProfile}
+                isPrincipal={true}
+                index={index}
+              />
+              <Loading isVisible={loadModal} text='Subiendo Imagen...' />
+            </View>
+
+            {hiddenBack()}
           </View>
+        ) : (
+          <View>
+            <Text style={styles.title}>{title}</Text>
+            {renderInput()}
+            {hiddenBack()}
+          </View>
+        )}
+        <ModalInfo
+          setShowModalInfo={setShowModalInfo}
+          showModalInfo={showModalInfo}
+          descripciones={descripciones}
+          id={id}
+          realIndex={rindex}
+        />
+      </View>
+    </Modal>
+  );
+}
 
-          {hiddenBack()}
-        </View>
-      ) : (
-        <View>
-          <Text style={styles.title}>{title}</Text>
-          {renderInput()}
+function ModalInfo(props) {
+  const { descripciones, showModalInfo, setShowModalInfo, id, realIndex } =
+    props;
 
-          {hiddenBack()}
-        </View>
-      )}
+  const handleLinkPress = (url) => {
+    Linking.openURL(url); // Abre la URL en el navegador
+  };
+
+  const renderDescription = () => {
+    const description = descripciones[id[realIndex]];
+
+    if (!description) {
+      return null; // Si la descripción está undefined, no renderizamos nada
+    }
+    const descriptionParts = description.split(' ');
+
+    return descriptionParts.map((part, index) => {
+      if (part.startsWith('http') || part.startsWith('www')) {
+        // Si la parte comienza con http o www, es probable que sea una URL
+        return (
+          <Text
+            key={index}
+            style={{ color: primary, textDecorationLine: 'underline' }}
+            onPress={() => handleLinkPress(part)}
+          >
+            {part}{' '}
+          </Text>
+        );
+      } else {
+        return <Text key={index}>{part} </Text>;
+      }
+    });
+  };
+
+  return (
+    <Modal
+      isVisible={showModalInfo}
+      setIsVisible={setShowModalInfo}
+      colorModal={'white'}
+      close={false}
+    >
+      <Text style={styles.titleInfo}>¿COMO LO OBTENGO?</Text>
+      <ScrollView style={{ height: '80%' }}>
+        <Text style={styles.descInfo}>{renderDescription()}</Text>
+      </ScrollView>
+
+      <Button
+        title={'ENTENDIDO'}
+        onPress={() => setShowModalInfo(false)}
+        buttonStyle={styles.btnInfo}
+        titleStyle={styles.txtbtnInfo}
+      />
     </Modal>
   );
 }
@@ -389,5 +521,63 @@ const styles = StyleSheet.create({
     marginTop: 30,
     backgroundColor: '#d6d6d6',
     borderRadius: 50,
+  },
+  selectBox: {
+    borderRadius: 40,
+    width: '94%',
+    alignSelf: 'center',
+    backgroundColor: '#d6d6d6',
+    borderWidth: 0,
+    marginBottom: 25,
+  },
+  selectInput: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: 'grey',
+  },
+  dropDownInput: {
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: '#d6d6d6',
+    borderWidth: 0,
+    marginBottom: 10,
+    marginTop: -20,
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+  },
+  selectContainer: {
+    flex: 1, // El 'SelectList' ocupará la mayor parte del espacio disponible
+  },
+  iconContainer: {
+    marginLeft: -8,
+    marginRight: 10,
+    marginTop: 5,
+  },
+  titleInfo: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: primary,
+    marginBottom: 15,
+  },
+  descInfo: {
+    color: 'grey',
+    width: '85%',
+    marginLeft: 20,
+    marginBottom: 15,
+    fontSize: 15,
+    textAlign: 'left',
+  },
+  btnInfo: {
+    backgroundColor: 'transparent',
+    width: '50%',
+    alignSelf: 'flex-end',
+  },
+  txtbtnInfo: {
+    color: primary,
+  },
+  block: {
+    backgroundColor: 'transparent',
   },
 });

@@ -81,40 +81,9 @@ export default function App() {
     );
   }, []);
 
-  /*  useEffect(() => {
-    // Solicitar permiso para enviar notificaciones
-    const getNotificationPermission = async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('No se otorgó el permiso para recibir notificaciones.');
-      } else {
-        scheduleMonthlyNotification();
-      }
-    };
-
-    getNotificationPermission();
-  }, []);
-
-  const scheduleMonthlyNotification = () => {
-    // Calcular la fecha y hora para el próximo mes
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Cambio de aceite',
-        body: 'Recuerda revisar el kilometraje de tu vehiculo para realizarle el cambio de aceite.',
-      },
-      trigger: {
-        seconds: 600, //igual a 10 sminutos
-        repeats: true,
-      },
-    });
-  };*/
-
   return (
     <>
-      <StatusBar style='auto' />
+      <StatusBar style='dark' />
 
       {user ? (
         <RevenueCatProvider>

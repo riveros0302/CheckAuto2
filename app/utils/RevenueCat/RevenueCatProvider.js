@@ -2,7 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Platform, Text } from 'react-native';
 import Purchases, { LOG_LEVEL, CustomerInfo } from 'react-native-purchases';
 import auth from '@react-native-firebase/auth';
-import { getSubscriptionInfo, saveSubscriptionInfo } from '../Database/users';
+import {
+  getSubscriptionInfo,
+  saveSubscriptionInfo,
+} from '../Database/suscription';
 
 const APIKeys = {
   apple: '',
@@ -77,7 +80,7 @@ export const RevenueCatProvider = ({ children }) => {
           await saveSubscriptionInfo(subscriptionData);
         }
       } else {
-        console.log('no hay suscripciones activas');
+        //  console.log('no hay suscripciones activas');
       }
     } catch (error) {
       console.error('Error logging in:', error.message);
@@ -123,7 +126,7 @@ export const RevenueCatProvider = ({ children }) => {
   const restorePermissions = async () => {
     try {
       const customer = await Purchases.restorePurchases();
-      console.log('customer: ' + customer);
+      // console.log('customer: ' + customer);
       return customer;
     } catch (error) {
       console.log('Error restoring permissions:', error);

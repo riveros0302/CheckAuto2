@@ -12,12 +12,13 @@ export const placeh = [
   'Placa Patente',
   'Tipo de Vehiculo',
   'Combustible',
+  'Tipo de Aceite',
   'Aire (PSI)',
   'Rueda',
   'Tipo de luces',
   'Transmisión',
   'Cilindrada del motor',
-  'Autonomía',
+  'Rendimiento',
   'N° Motor',
   'N° Chasis',
 ];
@@ -29,16 +30,19 @@ export const id = [
   'Patente',
   'Tipo',
   'Combustible',
+  'Aceite',
   'Aire',
   'Rueda',
   'Luces',
   'Transmision',
   'Motor',
-  'Autonomia',
+  'Rendimiento',
   'N_motor',
   'N_chasis',
   'url',
 ];
+
+export const idDoc = ['soap'];
 
 export const combustibleOptions = [
   'Gasolina',
@@ -46,3 +50,27 @@ export const combustibleOptions = [
   'Eléctrico',
   'Híbrido',
 ];
+
+export const tipoOptions = [
+  'Sedán',
+  'SUV',
+  'Station Wagon',
+  'Camioneta',
+  'Citycar',
+  'Descapotable',
+  'Camión livianos',
+  'Crossover',
+  'Furgón',
+  'Minibus',
+  'Van',
+  'Coupé',
+  'Motocicleta',
+  'Camión',
+  'Bús',
+  'Maquinaria pesada',
+  'EV (Vehiculo eléctrico)',
+  'Scooter',
+  'Trisiclo',
+];
+
+export const transmisionOptions = ['Manual', 'Automática', 'Semiautomática'];

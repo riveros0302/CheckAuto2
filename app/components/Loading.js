@@ -1,21 +1,29 @@
 import React from 'react';
-import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ActivityIndicator,
+  ImageBackground,
+} from 'react-native';
 import { Overlay } from 'react-native-elements';
-import { primary } from '../utils/tema';
+import { primary, secondary } from '../utils/tema';
+import RotatingWheel from './RotatingWheel';
 
 export default function Loading(props) {
   const { isVisible, text } = props;
 
   return (
-    <Overlay
-      isVisible={isVisible}
-      windowBackgroundColor='rgba(0, 0, 0, 0.5)'
-      overlayBackgroundColor='transparent'
-      overlayStyle={styles.overlay}
-    >
+    <Overlay isVisible={isVisible} overlayStyle={styles.overlay}>
       <View style={styles.view}>
-        <ActivityIndicator size='large' color={primary} />
-        {text && <Text style={styles.text}>{text}</Text>}
+        <ImageBackground
+          source={require('../../assets/FONDO.png')}
+          style={styles.imageBackground}
+          imageStyle={{ borderRadius: 20 }}
+        >
+          <RotatingWheel />
+          {text && <Text style={styles.text}>{text}</Text>}
+        </ImageBackground>
       </View>
     </Overlay>
   );
@@ -23,11 +31,10 @@ export default function Loading(props) {
 
 const styles = StyleSheet.create({
   overlay: {
-    height: 100,
-    width: 200,
-    backgroundColor: '#fff',
-    borderColor: primary,
-    borderWidth: 2,
+    height: 200,
+    width: 300,
+    backgroundColor: 'transparent', // Establece el fondo del overlay como transparente
+    shadowColor: 'rgba(0, 0, 0, 0.0)',
     borderRadius: 10,
   },
   view: {
@@ -35,8 +42,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  imageBackground: {
+    flex: 1, // Hace que la imagen ocupe todo el espacio disponible
+    width: '100%', // Establece el ancho al 100%
+    resizeMode: 'cover', // Ajusta la imagen para cubrir todo el espacio
+  },
   text: {
-    color: primary,
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
     textTransform: 'uppercase',
     marginTop: 10,
   },
