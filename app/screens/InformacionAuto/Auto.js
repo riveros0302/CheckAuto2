@@ -12,6 +12,7 @@ import Boton from '../../components/Boton';
 import MenuFlotante from '../../components/MenuFlotante';
 import Titulo from '../../components/Titulo';
 import { searchFirebase } from '../../utils/Database/auto';
+import { solicitarCalificacion } from '../../components/ReviewGooglePlay';
 
 export default function Auto(props) {
   const { route } = props;
@@ -19,11 +20,20 @@ export default function Auto(props) {
   const [datos, setDatos] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [filter, setFilter] = useState([]);
-  const keysToFilter = ['url_foto', 'createBy', 'Index', 'device'];
+  const keysToFilter = [
+    'url_foto',
+    'createBy',
+    'Index',
+    'device',
+    'Propietario',
+    'Rut',
+    'Direccion',
+  ];
   const orderKeys = [
     'Marca',
     'Modelo',
     'Año',
+    'Color',
     'Patente',
     'Tipo',
     'Combustible',
@@ -39,6 +49,7 @@ export default function Auto(props) {
   ];
 
   useEffect(() => {
+    solicitarCalificacion();
     //excluimos los datos de kysToFilter
     const result = Object.entries(data)
       .filter(([key]) => !keysToFilter.includes(key))
@@ -88,7 +99,7 @@ export default function Auto(props) {
             index.toString() + JSON.stringify(item)
           }
         />
-        <MenuFlotante datos={datos} isPDF={false} />
+        <MenuFlotante datos={datos} isPDF={false} data={data} />
         <SearchBar
           placeholder='Buscar...'
           lightTheme
@@ -111,10 +122,11 @@ function RenderItem(props) {
     Marca: require('../../../assets/Iconos/MENU1.png'),
     Modelo: require('../../../assets/Iconos/MODELO.png'),
     Año: require('../../../assets/Iconos/AÑO.png'),
+    Color: require('../../../assets/Iconos/COLOR.png'),
     Patente: require('../../../assets/Iconos/PATENTE.png'),
     Tipo: require('../../../assets/Iconos/TIPO.png'),
     Combustible: require('../../../assets/Iconos/GASOLINA.png'),
-    Aceite: require('../../../assets/Iconos/CAMBIO_ACEITE.png'),
+    Aceite: require('../../../assets/Iconos/TIPO_ACEITE.png'),
     Aire: require('../../../assets/Iconos/PRESION.png'),
     Rueda: require('../../../assets/Iconos/RUEDA.png'),
     Luces: require('../../../assets/Iconos/LUCES.png'),

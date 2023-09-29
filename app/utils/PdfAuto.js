@@ -122,24 +122,24 @@ export const generatePDF = async (data) => {
   <ul class="info-list">
   <li>
     <ul>
-      <li><strong>PROPIETARIO</strong>: ${auth().currentUser.displayName.toUpperCase()}</li>
-      <li><strong>RUT</strong>: </li>
-      <li><strong>DIRECCION</strong>: </li>
+      <li><strong>PROPIETARIO</strong>: ${data.Propietario?.toUpperCase()}</li>
+      <li><strong>RUT</strong>: ${data.Rut?.toUpperCase()}</li>
+      <li><strong>DIRECCION</strong>: ${data.Direccion?.toUpperCase()}</li>
     </ul>
   </li>
   <br/>
   <li>
     <ul>
-      <li><strong>TIPO VEHICULO</strong>: ${data.Tipo.toUpperCase()}</li>
-      <li><strong>AÑO</strong>: ${data.Año.toUpperCase()}</li>
-      <li><strong>MARCA</strong>: ${data.Marca.toUpperCase()}</li>
-      <li><strong>MODELO</strong>: ${data.Modelo.toUpperCase()}</li>
-      <li><strong>PLACA PATENTE</strong>: ${data.Patente.toUpperCase()}</li>
+      <li><strong>TIPO VEHICULO</strong>: ${data.Tipo?.toUpperCase()}</li>
+      <li><strong>AÑO</strong>: ${data.Año?.toUpperCase()}</li>
+      <li><strong>MARCA</strong>: ${data.Marca?.toUpperCase()}</li>
+      <li><strong>MODELO</strong>: ${data.Modelo?.toUpperCase()}</li>
+      <li><strong>PLACA PATENTE</strong>: ${data.Patente?.toUpperCase()}</li>
       <li><strong>N° MOTOR</strong>: ${data.Numero_Motor?.toUpperCase()}</li>
       <li><strong>N° CHASIS</strong>: ${data.Numero_Chasis?.toUpperCase()}</li>
       <li><strong>N° SERIE</strong>:</li>
       <li><strong>N° VIN</strong>:</li>
-      <li><strong>COLOR</strong>:</li>
+      <li><strong>COLOR</strong>: ${data.Color?.toUpperCase()}</li>
     </ul>
   </li>
   <br/>
@@ -152,7 +152,7 @@ export const generatePDF = async (data) => {
       <li><strong>TRANSMISION</strong>: ${data.Transmision?.toUpperCase()}</li>
       <li><strong>CILINDRADA</strong>:${data.Motor?.toUpperCase()}</li>
       <li><strong>CONSUMO</strong>:</li>
-      <li><strong>TIPO ACEITE</strong>:</li>
+      <li><strong>TIPO ACEITE</strong>: ${data.Aceite?.toUpperCase()}</li>
       <li><strong>MES REVISION</strong>:</li>
     </ul>
   </li>
@@ -160,7 +160,7 @@ export const generatePDF = async (data) => {
   <div class="line"></div>
   <div class="footer">
   <div class="contact">CONTACTO:
-  rtwinsgames@gmail.com
+  RTWINSGAMES@GMAIL.COM
   </div>
   <div class="logos">
     <img src="https://firebasestorage.googleapis.com/v0/b/checkauto-3f0c2.appspot.com/o/Utilidades%2FGOOGLE_PLAY.png?alt=media&token=3a45cada-580a-4f35-992f-2e59d6e913f2" alt="Google Play Logo">

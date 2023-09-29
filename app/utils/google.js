@@ -27,9 +27,9 @@ export const onGoogleButtonPress = async (setHidden, toastRef, setLoading) => {
     // Sign-in the user with the credential
     const user_sign_in = auth().signInWithCredential(googleCredential);
     user_sign_in
-      .then((user) => {
+      .then(async (user) => {
+        await addDataToUser();
         toastRef.current.show('Hola ' + user.user.displayName, 3000);
-        addDataToUser();
       })
       .catch(async (err) => {
         if (err.code === 'auth/user-disabled') {

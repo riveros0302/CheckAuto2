@@ -34,9 +34,13 @@ export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
 
     // Crear un objeto con los campos comunes
     const vehiculoData = {
+      Propietario: vehiculo.Propietario,
+      Rut: vehiculo.Rut,
+      Direccion: vehiculo.Direccion,
       Marca: vehiculo.Marca,
       Modelo: vehiculo.Modelo,
       Año: vehiculo.Año,
+      Color: vehiculo.Color,
       createBy: currentUserUid,
       device: Platform.OS,
       Index: indexfinal,

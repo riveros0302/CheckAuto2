@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "730964090293",
+    "project_id": "checkauto-3f0c2",
+    "storage_bucket": "checkauto-3f0c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730964090293:android:4312d5b8f99574ade5cdfc",
+        "android_client_info": {
+          "package_name": "com.riveros0302.CheckAuto2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "730964090293-7de52rkvrm5ma6a6ns9v6ckf394ficgn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.riveros0302.CheckAuto2",
+            "certificate_hash": "12268aa4af8bd809513806b532e2fd9ff62689cf"
+          }
+        },
+        {
+          "client_id": "730964090293-8skutjh6qutkkftap2n2tv58poros37o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.riveros0302.CheckAuto2",
+            "certificate_hash": "9ac22bf31b3a82e6779599af9e8c793dd68824d8"
+          }
+        },
+        {
+          "client_id": "730964090293-rfcp3edmfti963rlhmmb16dl0jntg2un.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.riveros0302.CheckAuto2",
+            "certificate_hash": "0cf2ea423996cac32a7cfe00af74ee2897d553f2"
+          }
+        },
+        {
+          "client_id": "730964090293-j8qde5d3aqe9vv5r1i4d2q2dc0p22n3b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUpo3EoAm2h1wZoBP8EOvOl1zlZ-cf7X4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "730964090293-j8qde5d3aqe9vv5r1i4d2q2dc0p22n3b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

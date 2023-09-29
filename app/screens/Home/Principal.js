@@ -201,6 +201,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
               icono={require('../../../assets/Iconos/DOCUMENTOS.png')}
               item='id'
               titulo='DOCUMENTOS'
+              data={data}
               index={index}
               isPrincipal={true}
             />

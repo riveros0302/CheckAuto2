@@ -76,10 +76,10 @@ export default function NewVersion(props) {
           marginBottom: 20,
           alignSelf: 'center',
           fontWeight: 'bold',
-          textAlign: 'justify',
+          textAlign: 'center',
         }}
       >
-        Hay una nueva version de la aplicacion, usted nunca jamas sea tonto
+        Hay una nueva version de la aplicacion. ¿Deseas actualizarla?
       </Text>
       <Button
         title='Actualizar'

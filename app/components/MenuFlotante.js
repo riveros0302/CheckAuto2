@@ -8,6 +8,7 @@ import Modal from './Modal';
 import { Button, Icon } from 'react-native-elements';
 import { generatePDF } from '../utils/PdfAuto';
 import { downloadImage } from '../utils/uploadPhoto';
+import Loading from './Loading';
 
 export default function MenuFlotante(props) {
   const {
@@ -25,6 +26,7 @@ export default function MenuFlotante(props) {
     toastRef,
     isShowPDF,
     isNotification,
+    isLogin,
   } = props;
   const navigation = useNavigation();
   const [imagen, setImagen] = useState(require('../../assets/Iconos/HOME.png'));
@@ -37,6 +39,7 @@ export default function MenuFlotante(props) {
     'device',
     'documentos',
   ];
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (main) {
@@ -98,7 +101,7 @@ export default function MenuFlotante(props) {
   return (
     <View style={styles.view}>
       <BotonFlotante source={imagen} posicion={'flex-start'} onpress={ifMain} />
-      {!isSetting && !isNotification && (
+      {!isSetting && !isNotification && !isLogin && (
         <BotonFlotante
           source={require('../../assets/Iconos/COMPARTIR.png')}
           posicion={'flex-end'}
@@ -110,13 +113,15 @@ export default function MenuFlotante(props) {
         setIsVisible={setIsVisible}
         array={array}
         data={data}
+        setLoading={setLoading}
       />
+      <Loading isVisible={loading} text='Generando PDF' />
     </View>
   );
 }
 
 function OptionShare(props) {
-  const { isVisible, setIsVisible, array, data } = props;
+  const { isVisible, setIsVisible, array, data, setLoading } = props;
 
   const shareAuto = async () => {
     try {
@@ -153,8 +158,11 @@ function OptionShare(props) {
 
   const crearPdf = async () => {
     try {
+      setLoading(true);
+      setIsVisible(false);
       const uri = await generatePDF(data);
       console.log('url del pdf: ' + uri);
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }

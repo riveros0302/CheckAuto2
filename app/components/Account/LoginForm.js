@@ -12,7 +12,7 @@ import { onGoogleButtonPress } from '../../utils/google';
 const screenWidth = Dimensions.get('screen').width;
 const screenHeight = Dimensions.get('screen').height;
 
-export default function LoginForm({ setUser, toastRef }) {
+export default function LoginForm({ setUser, toastRef, visible, checked }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState(defaultFormValue());
   const [loading, setLoading] = useState(false);
@@ -85,6 +85,7 @@ export default function LoginForm({ setUser, toastRef }) {
         onPress={() => onGoogleButtonPress(setHidden, toastRef, setLoading)}
         buttonStyle={styles.btnGoogle}
         containerStyle={styles.containerGoogle}
+        disabled={!checked ? true : false}
         icon={
           <View style={styles.buttonContent}>
             <Image

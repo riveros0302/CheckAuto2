@@ -13,6 +13,7 @@ import Suscripcion from '../screens/Account/Suscripcion';
 import Ajustes from '../screens/Account/Ajustes';
 import Home from '../utils/RevenueCat/Home';
 import { RevenueCatProvider } from '../utils/RevenueCat/RevenueCatProvider';
+import PoliticasyUso from '../utils/PoliticasyUso';
 
 const Stack = createStackNavigator();
 
@@ -66,6 +67,11 @@ export default function Navigation({ user, setUser, toastRef }) {
       <Stack.Screen
         name='suscripcion'
         component={Suscripcion}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name='politics'
+        component={PoliticasyUso}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

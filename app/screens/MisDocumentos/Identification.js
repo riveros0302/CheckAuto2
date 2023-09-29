@@ -16,7 +16,7 @@ import Loading from '../../components/Loading';
 
 export default function Identification(props) {
   const { route } = props;
-  const { index } = route.params;
+  const { index, data } = route.params;
   const [datos, setDatos] = useState([]);
   const keysToFilter = ['url_foto', 'createBy', 'Index', 'device'];
   const orderKeys = ['Marca', 'Modelo', 'Año'];
@@ -45,7 +45,7 @@ export default function Identification(props) {
           }
         />
 
-        <MenuFlotante datos={datos} />
+        <MenuFlotante datos={datos} data={data} />
         <Loading isVisible={reload} text='Cargando...' />
       </ImageBackground>
     </View>

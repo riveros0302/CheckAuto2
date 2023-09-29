@@ -50,7 +50,7 @@ export default function SuscripcionView(props) {
 
   return (
     <View style={styles.viewSubs}>
-      <Button
+      {/*  <Button
         title={'Restaurar Suscripción'}
         onPress={restorePermissions}
         containerStyle={{
@@ -65,7 +65,7 @@ export default function SuscripcionView(props) {
           color: primary,
         }}
         buttonStyle={{ backgroundColor: 'white' }}
-      />
+      />*/}
       <Text style={styles.nombre}>{titulo}</Text>
       <View style={styles.linea} />
       <View style={styles.marginView}>

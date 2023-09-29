@@ -6,17 +6,21 @@ export const pregunta = [
 ];
 
 export const placeh = [
+  'Propietario',
+  'RUT',
+  'Dirección',
   'Marca',
   'Modelo',
   'Año',
+  'Color',
   'Placa Patente',
   'Tipo de Vehiculo',
   'Combustible',
   'Tipo de Aceite',
   'Aire (PSI)',
   'Rueda',
-  'Tipo de luces',
   'Transmisión',
+  'Tipo de luces',
   'Cilindrada del motor',
   'Rendimiento',
   'N° Motor',
@@ -24,17 +28,21 @@ export const placeh = [
 ];
 
 export const id = [
+  'Propietario',
+  'Rut',
+  'Direccion',
   'Marca',
   'Modelo',
   'Año',
+  'Color',
   'Patente',
   'Tipo',
   'Combustible',
   'Aceite',
   'Aire',
   'Rueda',
-  'Luces',
   'Transmision',
+  'Luces',
   'Motor',
   'Rendimiento',
   'N_motor',
@@ -42,35 +50,43 @@ export const id = [
   'url',
 ];
 
-export const idDoc = ['soap'];
+export const idDoc = [
+  'soap',
+  'licencia_Conducir',
+  'permiso_Circulacion',
+  'revision_Tecnica',
+  'inscripcion',
+  'otros',
+  'padron',
+];
 
 export const combustibleOptions = [
-  'Gasolina',
-  'Diesel',
-  'Eléctrico',
-  'Híbrido',
+  'GASOLINA',
+  'DIESEL',
+  'ELÉCTRICO',
+  'HÍBRIDO',
 ];
 
 export const tipoOptions = [
-  'Sedán',
+  'SEDÁN',
   'SUV',
-  'Station Wagon',
-  'Camioneta',
-  'Citycar',
-  'Descapotable',
-  'Camión livianos',
-  'Crossover',
-  'Furgón',
-  'Minibus',
-  'Van',
-  'Coupé',
-  'Motocicleta',
-  'Camión',
-  'Bús',
-  'Maquinaria pesada',
-  'EV (Vehiculo eléctrico)',
-  'Scooter',
-  'Trisiclo',
+  'STATION WAGON',
+  'CAMIONETA',
+  'CITYCAR',
+  'DESCAPOTABLE',
+  'CAMIÓN LIVIANO',
+  'CROSSOVER',
+  'FURGÓN',
+  'MINIBUS',
+  'VAN',
+  'COUPÉ',
+  'MOTOCICLETA',
+  'CAMIÓN',
+  'BÚS',
+  'MAQUINARIA PESADA',
+  'EV (VEHICULO ELÉCTRICO)',
+  'SCOOTER',
+  'TRISICLO',
 ];
 
-export const transmisionOptions = ['Manual', 'Automática', 'Semiautomática'];
+export const transmisionOptions = ['MANUAL', 'AUTOMÁTICA', 'SEMIAUTOMÁTICA'];

@@ -23,12 +23,12 @@ import { privacidad } from '../../utils/politicas';
 import SuscripcionView from '../../components/SuscripcionView';
 import { deleteUserAccount } from '../../utils/Database/auto';
 import { useNavigation } from '@react-navigation/native';
+import PoliticasyUso from '../../utils/PoliticasyUso';
 
 export default function Ajustes({ setUser }) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const { logoutRC, idSubs } = useRevenueCat();
-  const [isVisible, setIsVisible] = useState(false);
   const [isVisibleServicio, setIsVisibleServicio] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [txtLoad, setTxtLoad] = useState('Cerrando Sesión');
@@ -124,7 +124,7 @@ export default function Ajustes({ setUser }) {
   };
 
   const callPolitics = () => {
-    setIsVisible(true);
+    navigation.navigate('politics');
   };
 
   const callService = () => {
@@ -191,7 +191,7 @@ export default function Ajustes({ setUser }) {
 
           <TouchableOpacity style={styles.viewContainer} onPress={callService}>
             <View style={styles.viewRow}>
-              <Text style={styles.txt}>Condiciones de servicio</Text>
+              <Text style={styles.txt}>Términos de uso</Text>
               <Icon
                 type='material-community'
                 name='check'
@@ -255,11 +255,7 @@ export default function Ajustes({ setUser }) {
         </ScrollView>
 
         <Loading isVisible={loading} text={txtLoad} />
-        <Politicas
-          isVisible={isVisible}
-          setIsVisible={setIsVisible}
-          privacidad={privacidad}
-        />
+
         <Servicios
           isVisible={isVisibleServicio}
           setIsVisible={setIsVisibleServicio}
@@ -286,29 +282,6 @@ function Suscripciones(props) {
       close={true}
     >
       <SuscripcionView idSubs={idSubs ? idSubs : null} isSetting={true} />
-    </Modal>
-  );
-}
-
-function Politicas(props) {
-  const { isVisible, setIsVisible, privacidad } = props;
-
-  return (
-    <Modal
-      isVisible={isVisible}
-      setIsVisible={setIsVisible}
-      colorModal={'white'}
-      close={false}
-    >
-      <ScrollView style={{ height: '75%' }}>
-        <Text style={styles.titlePolitics}>Politicas de Privacidad</Text>
-        <Text style={styles.politics}>{privacidad}</Text>
-      </ScrollView>
-      <Button
-        title={'Aceptar'}
-        buttonStyle={{ marginTop: 20, borderRadius: 30 }}
-        onPress={() => setIsVisible(false)}
-      />
     </Modal>
   );
 }

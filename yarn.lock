@@ -3498,6 +3498,13 @@ expo-sharing@^11.7.0:
   resolved "https://registry.npmjs.org/expo-sharing/-/expo-sharing-11.7.0.tgz#3c3ef244e1e1933b53b1431a4691129e7b00fcb0"
   integrity sha512-konZ7DqFUCiGss1VO/NGeTauwl0B8PyfBPsyXVyGTf52RCbecmF3txsWwVFDFAN+ufGi7a8oAxvGv03kKiTEBA==
 
+expo-splash-screen@~0.20.5:
+  version "0.20.5"
+  resolved "https://registry.npmjs.org/expo-splash-screen/-/expo-splash-screen-0.20.5.tgz#ebeba3e3977606830f74f506ab2cc25042bb7efd"
+  integrity sha512-nTALYdjHpeEA30rdOWSguxn72ctv8WM8ptuUgpfRgsWyn4i6rwYds/rBXisX69XO5fg+XjHAQqijGx/b28+3tg==
+  dependencies:
+    "@expo/prebuild-config" "6.2.6"
+
 expo-sqlite@^11.6.0:
   version "11.6.0"
   resolved "https://registry.npmjs.org/expo-sqlite/-/expo-sqlite-11.6.0.tgz#054229963e96aa2d3c913c61414c35858ca52939"
@@ -5908,6 +5915,11 @@ react-native-image-resizer@^1.4.5:
   version "1.4.5"
   resolved "https://registry.npmjs.org/react-native-image-resizer/-/react-native-image-resizer-1.4.5.tgz#5a520aa8baa07638b1894a1d87d4d9a0945c8d58"
   integrity sha512-33EgL3C9pyvjKpullAB6fWyD5QhoYEpNNB9rxNvUsrpAnL2mHBW7PTrUCCZudJeB6Weg7nbweKrSw1nnto5aqg==
+
+react-native-in-app-review@^4.3.3:
+  version "4.3.3"
+  resolved "https://registry.npmjs.org/react-native-in-app-review/-/react-native-in-app-review-4.3.3.tgz#61f09f110de18f0a470a9bb55b9f49600390085f"
+  integrity sha512-Q9sXBtK8tCBYFPCGmMgeMlkxXC5e6vAyPZK26OC1oOKUuKUd0QORnryk/qbwnuN4fLshHQN8UKlLgyHLGRuK3A==
 
 react-native-modal-datetime-picker@^17.0.0:
   version "17.0.0"

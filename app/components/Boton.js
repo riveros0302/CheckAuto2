@@ -45,14 +45,12 @@ export default function Boton(props) {
   const selected = async () => {
     switch (item) {
       case 'id':
-        navigation.navigate('Mis Documentos', { index });
+        navigation.navigate('Mis Documentos', { index, data });
         break;
       case 'auto':
         await analytics().logEvent('btn_General', {
           id: 'id_de_prueba',
           item: 'Presiono boton de General',
-          description: ['descripcion1', 'sexo'],
-          size: 'L',
         });
         navigation.navigate('Mi Auto', { data, index });
         break;

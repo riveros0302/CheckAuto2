@@ -44,7 +44,7 @@ export default function Cuestionario(props) {
   } = props;
   const [startIndex, setStartIndex] = useState(0);
   const [title, setTitle] = useState(
-    '¡Vamos a completar la información de tu vehiculo!'
+    '¡VAMOS A COMPLETAR LA INFORMACIÓN DE TU VEHICULO!'
   );
   const [enabled, setEnabled] = useState(true);
 
@@ -79,7 +79,11 @@ export default function Cuestionario(props) {
     setVehiculo(values);
     // Inicializar campos en el objeto vehiculo con valor predeterminado
     const vehiculoConCamposVacios = {
+      Propietario: '',
+      Rut: '',
+      Direccion: '',
       Año: '',
+      Color: '',
       Marca: '',
       Modelo: '',
       url: '',
@@ -113,6 +117,7 @@ export default function Cuestionario(props) {
           lastindex == null ? 0 : isUpdate ? lastindex : lastindex + 1;
 
         await insertAuto(vehiculoFinal, isUpdate, indexfinal);
+
         setAddCar(false);
         setVisible(false);
         setLoadModal(false);
@@ -148,6 +153,29 @@ export default function Cuestionario(props) {
     await setVehiculo({ ...vehiculo, [type]: url });
   };
 
+  const formatRut = (rut) => {
+    // Limpiar el RUT de cualquier caracter no numérico y mantener solo el dígito verificador
+    const cleanedRut = rut.replace(/[^\dKk]/g, '');
+
+    if (cleanedRut.length <= 1) {
+      return cleanedRut; // RUT sin cambios si tiene 1 o menos caracteres
+    }
+
+    // Obtener la parte numérica y el dígito verificador
+    const rutNumbers = cleanedRut.slice(0, -1);
+    const rutDV = cleanedRut.slice(-1).toUpperCase();
+
+    // Dar formato con puntos y guión
+    const formattedRut =
+      rutNumbers.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.') +
+      (rutDV === 'K' ? '-K' : `-${rutDV}`);
+
+    // Truncar cualquier caracter adicional después del dígito verificador
+    const truncatedRut = formattedRut.slice(0, 12); // Longitud máxima para un RUT
+
+    return truncatedRut;
+  };
+
   const setValue = (key, value) => {
     if (key === 'Patente') {
       const alphanumericText = value.replace(/[^A-Za-z0-9]/g, '');
@@ -160,7 +188,15 @@ export default function Cuestionario(props) {
 
       setValues((prevValues) => ({
         ...prevValues,
-        [key]: uppercaseText,
+        [key]: formattedText,
+      }));
+    } else if (key === 'Rut') {
+      // Dar formato al RUT
+      const formattedRut = formatRut(value);
+
+      setValues((prevValues) => ({
+        ...prevValues,
+        [key]: formattedRut,
       }));
     } else {
       setValues((prevValues) => ({
@@ -170,27 +206,18 @@ export default function Cuestionario(props) {
     }
   };
 
-  const getValue = (e, type) => {
-    console.log(type);
-    if (type === 'Combustible') {
-      setVehiculo({ ...vehiculo, [type]: e });
-    } else {
-      setVehiculo({ ...vehiculo, [type]: e.nativeEvent.text });
-    }
-  };
-
   const showMoreInputs = () => {
     setEnabled(false);
     setStartIndex((prevIndex) => prevIndex + 6);
 
     switch (startIndex) {
-      case 6:
-        setTitle('¡Ya casi terminamos!');
+      case 12:
+        setTitle('¡YA CASI TERMINAMOS!');
         setHiddenIMG(isUpdate ? true : false);
         break;
-      case 12:
+      case 18:
         setIsFoto(true);
-        setTitle('¡Y por ultimo sube una foto de tu vehiculo!');
+        setTitle('¡Y POR ULTIMO SUBE UNA FOTO DE TU VEHICULO!');
         break;
 
       default:
@@ -200,13 +227,16 @@ export default function Cuestionario(props) {
 
   const showPrevInputs = () => {
     setStartIndex((prevIndex) => prevIndex - 6);
-    setTitle('¡Vamos a completar la información de tu vehiculo!');
-
     switch (startIndex) {
-      case 6:
+      case 12:
+        setTitle('¡VAMOS A COMPLETAR LA INFORMACIÓN DE TU VEHICULO!');
         setEnabled(true);
         break;
       case 18:
+        setTitle('¡VAMOS A COMPLETAR LA INFORMACIÓN DE TU VEHICULO!');
+        break;
+      case 24:
+        setTitle('¡YA CASI TERMINAMOS!');
         setIsFoto(false);
         break;
 
@@ -226,7 +256,7 @@ export default function Cuestionario(props) {
             value={values[id[realIndex]]}
             data={option}
             search={false}
-            placeholder={res}
+            placeholder={values[id[realIndex]] ? values[id[realIndex]] : res}
             boxStyles={styles.selectBox}
             inputStyles={styles.selectInput}
             dropdownStyles={styles.dropDownInput}
@@ -236,9 +266,8 @@ export default function Cuestionario(props) {
           <Icon
             name='information-outline'
             type='material-community'
-            color={descripciones[id[realIndex]] ? primary : secondary}
+            color={primary}
             disabledStyle={styles.block}
-            disabled={descripciones[id[realIndex]] ? false : true}
             size={35}
             onPress={() => {
               setShowModalInfo(true);
@@ -255,8 +284,11 @@ export default function Cuestionario(props) {
 
     return placeh.slice(startIndex, endIndex).map((res, index) => {
       let keyboardType = 'default';
+      let maxLength = 0;
+
       if (res === 'Año') {
         keyboardType = 'numeric';
+        maxLength = 4;
       }
 
       const realIndex = startIndex + index; // Calcular el índice real
@@ -279,6 +311,13 @@ export default function Cuestionario(props) {
               inputStyle={styles.input}
               inputContainerStyle={{
                 borderBottomWidth: 0,
+              }}
+              onBlur={() => {
+                // Convertir el texto a mayúsculas al salir del campo
+                const uppercaseText = (
+                  values[id[realIndex]] || ''
+                ).toUpperCase();
+                setValue(id[realIndex], uppercaseText);
               }}
               maxLength={8}
               rightIcon={
@@ -303,28 +342,38 @@ export default function Cuestionario(props) {
             <Input
               key={index}
               placeholder={res}
+              maxLength={maxLength === 0 ? null : maxLength}
               keyboardType={keyboardType}
               onChange={(e) => setValue(id[realIndex], e.nativeEvent.text)} // Actualizar el valor en el estado
               value={values[id[realIndex]] || ''} // Asignar el valor almacenado del input
               inputStyle={styles.input}
+              onBlur={() => {
+                // Convertir el texto a mayúsculas al salir del campo
+                const uppercaseText = (
+                  values[id[realIndex]] || ''
+                ).toUpperCase();
+                setValue(id[realIndex], uppercaseText);
+              }}
               inputContainerStyle={{
                 borderBottomWidth: 0, // Para eliminar la línea inferior del campo de entrada
                 flexDirection: 'row', // Para alinear el icono a la derecha
                 alignItems: 'center', // Para centrar verticalmente el icono
+                paddingRight: descripciones[id[realIndex]] ? 0 : 35,
               }}
               rightIcon={
-                <Icon
-                  name='information-outline'
-                  type='material-community'
-                  color={descripciones[id[realIndex]] ? primary : secondary}
-                  size={35}
-                  disabledStyle={styles.block}
-                  disabled={descripciones[id[realIndex]] ? false : true}
-                  onPress={() => {
-                    setShowModalInfo(true);
-                    setRindex(realIndex);
-                  }}
-                />
+                descripciones[id[realIndex]] && (
+                  <Icon
+                    name='information-outline'
+                    type='material-community'
+                    color={primary}
+                    size={35}
+                    disabledStyle={styles.block}
+                    onPress={() => {
+                      setShowModalInfo(true);
+                      setRindex(realIndex);
+                    }}
+                  />
+                )
               }
             />
           );
@@ -483,13 +532,13 @@ function ModalInfo(props) {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: 'grey',
+    color: primary,
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 10,
-    width: '80%',
+    width: '90%',
     alignSelf: 'center',
   },
   boton: {

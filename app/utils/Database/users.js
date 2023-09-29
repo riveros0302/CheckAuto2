@@ -91,11 +91,6 @@ export const addDataToUser = async () => {
     // Obtiene los datos actuales del usuario
     const userDoc = await firestore().collection('users').doc(userId).get();
 
-    if (!userDoc.exists) {
-      console.log('No se encontró el usuario en Firestore.');
-      return;
-    }
-
     const existingData = userDoc.data();
 
     // Combina los datos actuales con los nuevos datos proporcionados

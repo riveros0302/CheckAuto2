@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements';
 import AccountStack from './AccountStack';
 import { primary, secondary } from '../utils/tema';
 import Principal from '../screens/Home/Principal';
+import PoliticasyUso from '../utils/PoliticasyUso';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,11 @@ export default function NavigationLogin({ setUser, toastRef }) {
       <Stack.Screen name='account' options={{ headerShown: false }}>
         {() => <AccountStack setUser={setUser} toastRef={toastRef} />}
       </Stack.Screen>
+      <Stack.Screen
+        name='politics'
+        component={PoliticasyUso}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 }

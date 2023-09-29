@@ -5,13 +5,53 @@ import {
   ScrollView,
   ImageBackground,
 } from 'react-native';
-import React from 'react';
+import { CheckBox } from 'react-native-elements';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import LoginForm from '../../components/Account/LoginForm';
 import { primary, background } from '../../utils/tema';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ setUser, toastRef }) {
   const navigation = useNavigation();
+  const [checked, setChecked] = useState(false);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    // Verificar si el usuario ya aceptó los términos de uso
+    checkTermsAcceptance();
+  }, []);
+
+  const checkTermsAcceptance = async () => {
+    try {
+      const acceptanceStatus = await AsyncStorage.getItem('termsAcceptance');
+      if (acceptanceStatus === 'accepted') {
+        // Si el usuario ya aceptó los términos, oculta el checkbox y el texto
+        setVisible(false);
+        setChecked(true);
+      }
+    } catch (error) {
+      console.error('Error checking terms acceptance:', error);
+    }
+  };
+
+  const handleCheckboxPress = async () => {
+    try {
+      setChecked(!checked);
+      if (!checked) {
+        // Guardar el estado de aceptación de términos en AsyncStorage
+        await AsyncStorage.setItem('termsAcceptance', 'accepted');
+        console.log('accepted');
+      } else {
+        // Guardar el estado de aceptación de términos en AsyncStorage
+        await AsyncStorage.setItem('termsAcceptance', 'cancelled');
+        console.log('cancelled');
+      }
+    } catch (error) {
+      console.error('Error saving terms acceptance:', error);
+    }
+  };
+
   return (
     <ImageBackground
       source={background} // Ruta de la imagen de fondo
@@ -19,8 +59,19 @@ export default function Login({ setUser, toastRef }) {
     >
       <ScrollView>
         <View style={styles.viewContainer}>
-          <LoginForm setUser={setUser} toastRef={toastRef} />
-          <CrearCuenta navigation={navigation} />
+          <LoginForm
+            setUser={setUser}
+            toastRef={toastRef}
+            visible={visible}
+            checked={checked}
+          />
+          {visible && (
+            <CrearCuenta
+              navigation={navigation}
+              handleCheckboxPress={handleCheckboxPress}
+              checked={checked}
+            />
+          )}
         </View>
       </ScrollView>
     </ImageBackground>
@@ -28,17 +79,24 @@ export default function Login({ setUser, toastRef }) {
 }
 
 function CrearCuenta(props) {
-  const { navigation } = props;
+  const { navigation, handleCheckboxPress, checked } = props;
   return (
-    <Text>
-      ¿Aun no tienes una cuenta?{' '}
-      <Text
-        style={styles.btnRegister}
-        onPress={() => navigation.navigate('register')}
-      >
-        Registrate
+    <View style={styles.viewCheck}>
+      <CheckBox
+        checked={checked}
+        onPress={handleCheckboxPress}
+        checkedColor='white'
+      />
+      <Text style={{ left: -18 }}>
+        Acepto las{' '}
+        <Text
+          style={styles.btnRegister}
+          onPress={() => navigation.navigate('politics')}
+        >
+          Politicas y condiciones de uso
+        </Text>
       </Text>
-    </Text>
+    </View>
   );
 }
 
@@ -53,7 +111,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   btnRegister: {
-    color: primary,
+    color: 'white',
     fontWeight: 'bold',
   },
   divider: {
@@ -67,5 +125,10 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover', // Ajusta la imagen al tamaño del componente
     justifyContent: 'center',
+  },
+  viewCheck: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '90%',
   },
 });

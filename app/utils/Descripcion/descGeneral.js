@@ -223,4 +223,18 @@ Ejemplo:
 
 Supongamos que el manual del propietario o la tapa del rellenado de aceite indican que tu vehículo requiere un aceite sintético de viscosidad 5W-30. Esto significa que debes usar un aceite con una viscosidad de 5 en condiciones de frío y 30 en condiciones de calor, y que es de tipo sintético.
 `,
+
+  Transmision: `Revisa el Manual del Propietario:
+
+  El manual del propietario del vehículo proporciona información detallada sobre las especificaciones y características del automóvil, incluida la transmisión. Busca la sección que describe las especificaciones técnicas del vehículo.
+  
+
+  Verifica la Palanca de Cambios:
+
+  Observa la palanca de cambios en el interior del vehículo. Si es un automóvil automático, verás las letras P, R, N, D y a veces un número (como 1, 2, 3). Si es un automóvil manual, verás las posiciones para los cambios (generalmente 1 a 5 o 6 y la marcha atrás).
+  
+
+  Consulta la Placa de Identificación del Vehículo:
+  
+  Busca la placa de identificación del vehículo. En muchos vehículos, encontrarás una placa con información importante, incluida la especificación de la transmisión. Esta placa suele estar en el compartimento del motor o en el marco de la puerta del conductor.`,
 };
