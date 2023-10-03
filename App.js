@@ -2,10 +2,10 @@ import {
   StyleSheet,
   Text,
   View,
-  StatusBar,
   LogBox,
   PermissionsAndroid,
   Alert,
+  StatusBar,
 } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -83,7 +83,7 @@ export default function App() {
 
   return (
     <>
-      <StatusBar style='dark' />
+      <StatusBar barStyle={'light-content'} backgroundColor={'black'} />
 
       {user ? (
         <RevenueCatProvider>
