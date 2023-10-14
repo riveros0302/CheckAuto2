@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import * as Notifications from 'expo-notifications';
 import { StyleSheet, View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -7,15 +6,6 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import Modal from '../../components/Modal';
 import { primary } from '../../utils/tema';
 import { addDate1ToUser, addDate2ToUser } from '../../utils/Database/users';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => {
-    return {
-      shouldPlaySound: true,
-      shouldShowAlert: true,
-    };
-  },
-});
 
 LocaleConfig.locales['es'] = {
   monthNames: [
@@ -70,6 +60,8 @@ export default function Calendario(props) {
     setDate2,
     date2,
     indexCar,
+    localnotification1,
+    localnotification2,
   } = props;
 
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
@@ -79,50 +71,6 @@ export default function Calendario(props) {
   /* const showDatePicker = () => {
     setDatePickerVisible(true);
   };*/
-  const localnotification1 = () => {
-    const now = new Date();
-    now.setDate(now.getDate() - 1);
-    const triggerTime = new Date(date1);
-    triggerTime.setHours(9, 0, 0); // Establecer la hora a las 9:00 PM
-
-    const secondsDiff = Math.floor((triggerTime - now) / 1000);
-    // Si la diferencia es negativa, agrega un día en segundos
-
-    console.log('Diferencia en segundos:', secondsDiff);
-
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Permiso de Circulación',
-        body: 'Hola, recuerda sacar tu permiso de circulación',
-      },
-      trigger: {
-        seconds: secondsDiff,
-      },
-    });
-  };
-
-  const localnotification2 = () => {
-    const now = new Date();
-    now.setDate(now.getDate() - 1);
-
-    // Convierte la cadena date1 en un objeto de fecha
-    const date2Obj = new Date(date2);
-    date2Obj.setHours(9, 0, 0); // Establecer la hora a las 9:00 AM
-    const triggerTime = date2Obj.getTime(); // Obtén el tiempo seleccionado en milisegundos
-
-    const secondsDiff = Math.floor((triggerTime - now) / 1000);
-    console.log(secondsDiff);
-
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: 'Revisión Técnica',
-        body: 'Hola, recuerda ir a la Revisión Técnica este mes',
-      },
-      trigger: {
-        seconds: secondsDiff,
-      },
-    });
-  };
 
   const hideDatePicker = () => {
     setDatePickerVisible(false);

@@ -1,12 +1,22 @@
 import { StyleSheet, Text, View, ImageBackground } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-native-elements';
+import * as Notifications from 'expo-notifications';
 import { background } from '../../utils/tema';
 import MenuFlotante from '../../components/MenuFlotante';
 import Titulo from '../../components/Titulo';
 import Boton from '../../components/Boton';
 import Calendario from './Calendario';
 import { getDatesFromUser } from '../../utils/Database/users';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => {
+    return {
+      shouldPlaySound: true,
+      shouldShowAlert: true,
+    };
+  },
+});
 
 export default function Alarma(props) {
   const { route } = props;
@@ -21,12 +31,59 @@ export default function Alarma(props) {
     setIndexNot(id);
   };
 
+  const localnotification1 = () => {
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+    const triggerTime = new Date(date1);
+    triggerTime.setHours(9, 0, 0); // Establecer la hora a las 9:00 PM
+
+    const secondsDiff = Math.floor((triggerTime - now) / 1000);
+    // Si la diferencia es negativa, agrega un día en segundos
+
+    console.log('Diferencia en segundos:', secondsDiff);
+
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Permiso de Circulación',
+        body: 'Hola, recuerda sacar tu permiso de circulación',
+      },
+      trigger: {
+        seconds: secondsDiff,
+      },
+    });
+  };
+
+  const localnotification2 = () => {
+    const now = new Date();
+    now.setDate(now.getDate() - 1);
+
+    // Convierte la cadena date1 en un objeto de fecha
+    const date2Obj = new Date(date2);
+    date2Obj.setHours(9, 0, 0); // Establecer la hora a las 9:00 AM
+    const triggerTime = date2Obj.getTime(); // Obtén el tiempo seleccionado en milisegundos
+
+    const secondsDiff = Math.floor((triggerTime - now) / 1000);
+    console.log(secondsDiff);
+
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Revisión Técnica',
+        body: 'Hola, recuerda ir a la Revisión Técnica este mes',
+      },
+      trigger: {
+        seconds: secondsDiff,
+      },
+    });
+  };
+
   useEffect(() => {
     const getDatesFirebase = async () => {
       try {
         const { date1, date2 } = await getDatesFromUser(index);
         setDate1(date1);
         setDate2(date2);
+        localnotification1();
+        localnotification2();
       } catch (error) {}
     };
     getDatesFirebase();
@@ -67,6 +124,8 @@ export default function Alarma(props) {
           date2={date2}
           index={indexNot}
           indexCar={index}
+          localnotification1={localnotification1}
+          localnotification2={localnotification2}
         />
 
         <MenuFlotante isNotification={true} />

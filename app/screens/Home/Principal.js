@@ -21,6 +21,7 @@ import auth from '@react-native-firebase/auth';
 import { isDisabledAccount } from '../../utils/google';
 import Modal from '../../components/Modal';
 import NewVersion from '../../utils/NewVersion';
+import Inicio from './Inicio';
 
 export default function Principal({ user, setUser, route, toastRef }) {
   const [visible, setVisible] = useState(true);
@@ -39,6 +40,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
   const [index, setIndex] = useState(0);
   const [isUpdate, setIsUpdate] = useState(false);
   const [isEditIndex, setIsEditIndex] = useState(false); //state para saber si usar 'index' en vez de indexfinal en Cuestionario
+  const [tuto, setTuto] = useState(true);
 
   useEffect(() => {
     const validarSesion = async () => {
@@ -81,7 +83,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
               if (!isEmpty(res.url_foto)) {
                 setProfile(res.url_foto);
               }
-
+              setTuto(false); // si hay auto registrado, no mostrar introducción
               setLoading(false);
             });
           } else {
@@ -165,6 +167,8 @@ export default function Principal({ user, setUser, route, toastRef }) {
 
   return (
     <View style={styles.vertical}>
+      {tuto && <Inicio setTuto={setTuto} />}
+
       <ImageBackground source={background} style={{ height: '100%' }}>
         <MenuFlotante
           main={true}
@@ -234,25 +238,23 @@ export default function Principal({ user, setUser, route, toastRef }) {
           />
         </View>
 
-        {isEmpty(data) || addCar ? (
-          <View>
-            <Cuestionario
-              visible={visible}
-              setVisible={setVisible}
-              setVehiculo={setVehiculo}
-              vehiculo={vehiculo}
-              profile={profile}
-              setProfile={setProfile}
-              addCar={addCar}
-              setAddCar={setAddCar}
-              setData={addCar ? setData : null}
-              index={index}
-              isUpdate={isUpdate}
-              isEditIndex={isEditIndex}
-              toastRef={toastRef}
-            />
-          </View>
-        ) : null}
+        {!tuto && (isEmpty(data) || addCar) && (
+          <Cuestionario
+            visible={visible}
+            setVisible={setVisible}
+            setVehiculo={setVehiculo}
+            vehiculo={vehiculo}
+            profile={profile}
+            setProfile={setProfile}
+            addCar={addCar}
+            setAddCar={setAddCar}
+            setData={addCar ? setData : null}
+            index={index}
+            isUpdate={isUpdate}
+            isEditIndex={isEditIndex}
+            toastRef={toastRef}
+          />
+        )}
         <ShowUpdate />
         <Loading isVisible={loading} text='Cargando datos...' />
       </ImageBackground>
