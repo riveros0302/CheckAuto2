@@ -23,7 +23,7 @@ import { privacidad } from '../../utils/politicas';
 import SuscripcionView from '../../components/SuscripcionView';
 import { deleteUserAccount } from '../../utils/Database/auto';
 import { useNavigation } from '@react-navigation/native';
-import PoliticasyUso from '../../utils/PoliticasyUso';
+import PoliticasyUso from '../../utils/Politics';
 
 export default function Ajustes({ setUser }) {
   const [isEnabled, setIsEnabled] = useState(true);
@@ -128,7 +128,7 @@ export default function Ajustes({ setUser }) {
   };
 
   const callService = () => {
-    setIsVisibleServicio(true);
+    navigation.navigate('terms');
   };
 
   return (
@@ -191,7 +191,7 @@ export default function Ajustes({ setUser }) {
 
           <TouchableOpacity style={styles.viewContainer} onPress={callService}>
             <View style={styles.viewRow}>
-              <Text style={styles.txt}>Términos de uso</Text>
+              <Text style={styles.txt}>Términos y condiciones</Text>
               <Icon
                 type='material-community'
                 name='check'

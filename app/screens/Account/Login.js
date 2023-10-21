@@ -93,7 +93,14 @@ function CrearCuenta(props) {
           style={styles.btnRegister}
           onPress={() => navigation.navigate('politics')}
         >
-          Politicas y condiciones de uso
+          Politicas
+        </Text>
+        <Text> y </Text>
+        <Text
+          style={styles.btnRegister}
+          onPress={() => navigation.navigate('terms')}
+        >
+          Condiciones de uso
         </Text>
       </Text>
     </View>

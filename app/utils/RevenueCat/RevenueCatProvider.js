@@ -104,6 +104,8 @@ export const RevenueCatProvider = ({ children }) => {
 
     if (customerInfo?.entitlements.active['pro']) {
       newUser.items.push(customerInfo.entitlements.active['pro'].identifier);
+    } else if (customerInfo?.entitlements.active['block']) {
+      newUser.items.push(customerInfo.entitlements.active['block'].identifier);
     }
 
     setUser(newUser);

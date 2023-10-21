@@ -226,14 +226,20 @@ export default function Cuestionario(props) {
   };
 
   const showPrevInputs = () => {
+    console.log(startIndex);
     setStartIndex((prevIndex) => prevIndex - 6);
     switch (startIndex) {
+      case 6:
+        setEnabled(true);
+        break;
       case 12:
         setTitle('¡VAMOS A COMPLETAR LA INFORMACIÓN DE TU VEHICULO!');
-        setEnabled(true);
+        //setEnabled(true);
         break;
       case 18:
         setTitle('¡VAMOS A COMPLETAR LA INFORMACIÓN DE TU VEHICULO!');
+
+        setHiddenIMG(false);
         break;
       case 24:
         setTitle('¡YA CASI TERMINAMOS!');

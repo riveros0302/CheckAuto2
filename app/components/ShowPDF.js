@@ -25,12 +25,12 @@ import { idDoc } from '../utils/preguntas';
 import Modal from './Modal';
 import * as ImagePicker from 'expo-image-picker';
 import ImageResizer from 'react-native-image-resizer';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-export default function ShowPDF(props) {
-  const { route } = props;
+export default function ShowPDF({ route, toastRef }) {
   const { index, titulo } = route.params;
   const [pdfurl, setPdfurl] = useState(null);
   const [reload, setReload] = useState(false);
@@ -38,6 +38,7 @@ export default function ShowPDF(props) {
   const [showModalInfo, setShowModalInfo] = useState(false);
   const [showOption, setShowOption] = useState(false);
   const [imageUri, setImageUri] = useState(null);
+  const navigation = useNavigation();
 
   console.log(titulo);
 
@@ -102,6 +103,8 @@ export default function ShowPDF(props) {
         await uploadImageDocument(newUri, index, titulo);
         setPdfurl(null);
         setReload(false);
+        navigation.navigate('home');
+        toastRef.current.show('Documento registrado correctamente', 2000);
       } catch (error) {
         console.log(error);
       }
@@ -161,6 +164,7 @@ export default function ShowPDF(props) {
         imageUri={imageUri ? imageUri : null}
         setReload={setReload}
         setTxtLoad={setTxtLoad}
+        toastRef={toastRef}
         isShowPDF={true}
       />
       <SafeAreaView

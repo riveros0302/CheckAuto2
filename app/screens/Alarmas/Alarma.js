@@ -8,6 +8,7 @@ import Titulo from '../../components/Titulo';
 import Boton from '../../components/Boton';
 import Calendario from './Calendario';
 import { getDatesFromUser } from '../../utils/Database/users';
+import Banner2 from '../../components/Ads/Banner2';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -18,9 +19,8 @@ Notifications.setNotificationHandler({
   },
 });
 
-export default function Alarma(props) {
-  const { route } = props;
-  const { index } = route.params;
+export default function Alarma({ route }) {
+  const { index, blockAds } = route.params;
   const [date1, setDate1] = useState(null);
   const [date2, setDate2] = useState(null);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
@@ -35,7 +35,7 @@ export default function Alarma(props) {
     const now = new Date();
     now.setDate(now.getDate() - 1);
     const triggerTime = new Date(date1);
-    triggerTime.setHours(9, 0, 0); // Establecer la hora a las 9:00 PM
+    triggerTime.setHours(10, 30, 0); // Establecer la hora a las 10:30 PM
 
     const secondsDiff = Math.floor((triggerTime - now) / 1000);
     // Si la diferencia es negativa, agrega un día en segundos
@@ -129,6 +129,7 @@ export default function Alarma(props) {
         />
 
         <MenuFlotante isNotification={true} />
+        {!blockAds && <Banner2 />}
       </ImageBackground>
     </View>
   );

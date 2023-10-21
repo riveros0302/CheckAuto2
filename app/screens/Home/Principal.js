@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, ImageBackground, Button } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ImageBackground,
+  Button,
+  PermissionsAndroid,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import Cuestionario from './Cuestionario';
 import AvatarCar from '../../components/AvatarCar';
@@ -22,8 +29,17 @@ import { isDisabledAccount } from '../../utils/google';
 import Modal from '../../components/Modal';
 import NewVersion from '../../utils/NewVersion';
 import Inicio from './Inicio';
+import Banner from '../../components/Ads/Banner';
+import { Interstitial, interstitial } from '../../components/Ads/Interstitial';
 
-export default function Principal({ user, setUser, route, toastRef }) {
+export default function Principal({
+  user,
+  setUser,
+  route,
+  toastRef,
+  blockAds,
+  setBlockAds,
+}) {
   const [visible, setVisible] = useState(true);
   const [data, setData] = useState({});
   const [vehiculo, setVehiculo] = useState({});
@@ -69,10 +85,46 @@ export default function Principal({ user, setUser, route, toastRef }) {
     fetchLowestIndex();
   }, [route]);
 
+  const requestMicrophonePermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: 'Permiso de micrófono',
+          message:
+            'Necesitamos acceder al micrófono para realizar algunas funciones.',
+          buttonPositive: 'Aceptar',
+          buttonNegative: 'Cancelar',
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Permiso de micrófono otorgado');
+        // Puedes realizar acciones que requieran acceso al micrófono aquí
+      } else {
+        console.log('Permiso de micrófono denegado');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   useEffect(() => {
     if (isFocused) {
       setLoading(true);
       // crearAuto;
+      requestMicrophonePermission();
+      //checkear si block-ads esta comprado si esta comprado setBlockAds queda en true para bloquear Banner y Interstitial
+      const checkAds = async () => {
+        const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
+
+        if (customerInfo.entitlements.active['block']) {
+          setBlockAds(true);
+          console.log('BLOCK ADS COMPRADO');
+        } else {
+          console.log('FALTA COMPRAR BLOCK ADS');
+        }
+      };
+      checkAds();
 
       const fetchUserId = async () => {
         try {
@@ -122,7 +174,6 @@ export default function Principal({ user, setUser, route, toastRef }) {
     if (customerInfo.entitlements.active['pro']) {
       setVisible(true);
       setAddCar(true);
-      console.log('suscripcion: ' + idSubs);
       switch (idSubs) {
         case 'pp_android:pp1m' || 'pp_android:pp1a':
           if (NumAutos >= 3) {
@@ -159,7 +210,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
           break;
       }
     } else {
-      navigation.navigate('suscripcion');
+      navigation.navigate('suscripcion', { blockAds });
     }
 
     //navigation.navigate('borrar');
@@ -175,8 +226,10 @@ export default function Principal({ user, setUser, route, toastRef }) {
           data={data}
           isPDF={false}
           toastRef={toastRef}
+          interstitial={interstitial}
+          blockAds={blockAds}
         />
-
+        <Interstitial />
         <View style={styles.viewperfil}>
           <AvatarCar
             profile={profile}
@@ -208,6 +261,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
               data={data}
               index={index}
               isPrincipal={true}
+              blockAds={blockAds}
             />
           </View>
           <View style={styles.container}>
@@ -217,6 +271,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
               titulo='NOTIFICACIONES'
               index={index}
               isPrincipal={true}
+              blockAds={blockAds}
             />
             <Boton
               icono={require('../../../assets/Iconos/AJUSTES.png')}
@@ -257,6 +312,7 @@ export default function Principal({ user, setUser, route, toastRef }) {
         )}
         <ShowUpdate />
         <Loading isVisible={loading} text='Cargando datos...' />
+        {!blockAds && <Banner />}
       </ImageBackground>
     </View>
   );

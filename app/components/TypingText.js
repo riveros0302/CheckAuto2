@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { colorTexto } from '../utils/tema';
 import { Button } from 'react-native-elements';
 import BotonAnimado from './BotonAnimado';
+import * as Animatable from 'react-native-animatable';
 
 export default function TypingText({
   text,
@@ -14,26 +15,27 @@ export default function TypingText({
   const [displayedText, setDisplayedText] = useState('');
   const [isCompleted, setIsCompleted] = useState(false);
   const [isOmitir, setIsOmitir] = useState(false);
+  const animatableTextRef = useRef(null);
 
   useEffect(() => {
-    setIsCompleted(false);
-    setDisplayedText('');
-    let index = 0;
-    const intervalId = setInterval(() => {
-      setDisplayedText((prev) => prev + text[index]);
-      index++;
-      if (index === text.length) {
-        clearInterval(intervalId);
-        setIsCompleted(true);
-      }
-    }, speed);
-
-    return () => clearInterval(intervalId);
+    setIsCompleted(true);
   }, [text, speed]);
+
+  const restartAnimation = () => {
+    // Restart the 'bounceIn' animation
+    animatableTextRef.current.bounceIn();
+  };
 
   return (
     <View>
-      <Text style={styles.txt}>{displayedText}</Text>
+      <Animatable.Text
+        ref={animatableTextRef}
+        animation='bounceIn'
+        duration={900}
+        style={styles.txt}
+      >
+        {text}
+      </Animatable.Text>
       {isCompleted && (
         <View style={isOmitir && styles.omitir}>
           {isOmitir && (
@@ -43,6 +45,7 @@ export default function TypingText({
               setIsOmitir={setIsOmitir}
               omitir={true}
               setTuto={setTuto}
+              restartAnimation={restartAnimation}
             />
           )}
           <BotonAnimado
@@ -51,6 +54,7 @@ export default function TypingText({
             setIsOmitir={setIsOmitir}
             omitir={false}
             setTuto={setTuto}
+            restartAnimation={restartAnimation}
           />
         </View>
       )}

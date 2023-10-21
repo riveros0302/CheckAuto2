@@ -13,15 +13,14 @@ import { useRevenueCat } from '../utils/RevenueCat/RevenueCatProvider';
 import Loading from './Loading';
 
 export default function SuscripcionView(props) {
-  const { idSubs, isSetting } = props;
+  const { idSubs, isSetting, blockAds } = props;
   const [selectedIndex, setIndex] = useState(0); //este es para el checkbox
   const [idSub, setIdSub] = useState(0);
   const [tiempo, setTiempo] = useState('Mes');
   const [reload, setReload] = useState(false);
   const [titulo, setTitulo] = useState('Hazte Pro!');
 
-  const { user, packages, purchasePackage, restorePermissions } =
-    useRevenueCat();
+  const { user, packages, restorePermissions } = useRevenueCat();
 
   useEffect(() => {
     if (idSubs) {
@@ -93,6 +92,7 @@ export default function SuscripcionView(props) {
           packages={packages.default_offering}
           setReload={setReload}
           idSubs={idSubs}
+          isDeleteAds={false}
         />
         <BotonSuscripcion
           idSub={idSub}
@@ -101,6 +101,7 @@ export default function SuscripcionView(props) {
           packages={packages.default_offering_oro}
           setReload={setReload}
           idSubs={idSubs}
+          isDeleteAds={false}
         />
         <BotonSuscripcion
           idSub={idSub}
@@ -109,7 +110,20 @@ export default function SuscripcionView(props) {
           packages={packages.default_offering_platino}
           setReload={setReload}
           idSubs={idSubs}
+          isDeleteAds={false}
         />
+        {!blockAds && (
+          <BotonSuscripcion
+            idSub={idSub}
+            tiempo={tiempo}
+            titulo={'¡Eliminar Anuncios!'}
+            packages={packages.default_blok_ads}
+            setReload={setReload}
+            idSubs={idSubs}
+            isDeleteAds={true}
+          />
+        )}
+
         <Loading isVisible={reload} text='Cargando...' />
       </View>
     </View>

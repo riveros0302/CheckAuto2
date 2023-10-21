@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import Principal from '../screens/Home/Principal';
 import { primary, secondary } from '../utils/tema';
@@ -13,11 +13,13 @@ import Suscripcion from '../screens/Account/Suscripcion';
 import Ajustes from '../screens/Account/Ajustes';
 import Home from '../utils/RevenueCat/Home';
 import { RevenueCatProvider } from '../utils/RevenueCat/RevenueCatProvider';
-import PoliticasyUso from '../utils/PoliticasyUso';
+import PoliticasyUso from '../utils/Politics';
+import Terms from '../utils/Terms';
 
 const Stack = createStackNavigator();
 
 export default function Navigation({ user, setUser, toastRef }) {
+  const [blockAds, setBlockAds] = useState(false);
   return (
     <Stack.Navigator
       initialRouteName='home'
@@ -33,29 +35,27 @@ export default function Navigation({ user, setUser, toastRef }) {
             user={user}
             setUser={setUser}
             toastRef={toastRef}
+            blockAds={blockAds}
+            setBlockAds={setBlockAds}
           />
         )}
       </Stack.Screen>
-      <Stack.Screen
-        name='Mis Documentos'
-        component={Identification}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name='Mi Auto'
-        component={Auto}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name='Mis Documentos' options={{ headerShown: false }}>
+        {({ route }) => <Identification blockAds={blockAds} route={route} />}
+      </Stack.Screen>
+      <Stack.Screen name='Mi Auto' options={{ headerShown: false }}>
+        {({ route }) => <Auto blockAds={blockAds} route={route} />}
+      </Stack.Screen>
       <Stack.Screen
         name='Mi Alarma'
         component={Alarma}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
-        name='add-document'
-        component={ShowPDF}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name='add-document' options={{ headerShown: false }}>
+        {({ route }) => (
+          <ShowPDF route={route} blockAds={blockAds} toastRef={toastRef} />
+        )}
+      </Stack.Screen>
       <Stack.Screen name='Mis Ajustes' options={{ headerShown: false }}>
         {() => <Ajustes setUser={setUser} />}
       </Stack.Screen>
@@ -72,6 +72,11 @@ export default function Navigation({ user, setUser, toastRef }) {
       <Stack.Screen
         name='politics'
         component={PoliticasyUso}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name='terms'
+        component={Terms}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -17,6 +17,7 @@ import { RevenueCatProvider } from './app/utils/RevenueCat/RevenueCatProvider';
 import messaging from '@react-native-firebase/messaging';
 import TestRC from './app/utils/RevenueCat/TestRC';
 import TestOBD2 from './app/screens/OBD2/TestOBD2';
+import ChatBot from './app/screens/Chats/ChatBot';
 
 LogBox.ignoreLogs(['Setting a timer']);
 
@@ -81,9 +82,15 @@ export default function App() {
     );
   }, []);
 
+  // return <ChatBot />;
+
   return (
     <>
-      <StatusBar style='dark' />
+      <StatusBar
+        style='dark'
+        barStyle={'light-content'}
+        backgroundColor={'black'}
+      />
 
       {user ? (
         <RevenueCatProvider>

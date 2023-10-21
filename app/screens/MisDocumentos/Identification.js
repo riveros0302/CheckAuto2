@@ -13,21 +13,31 @@ import MenuFlotante from '../../components/MenuFlotante';
 import Titulo from '../../components/Titulo';
 import Boton from '../../components/Boton';
 import Loading from '../../components/Loading';
+import {
+  Interstitial2,
+  interstitial2,
+} from '../../components/Ads/Interstitial2';
+import { Interstitial, interstitial } from '../../components/Ads/Interstitial';
 
 export default function Identification(props) {
   const { route } = props;
-  const { index, data } = route.params;
+  const { index, data, blockAds } = route.params;
   const [datos, setDatos] = useState([]);
   const keysToFilter = ['url_foto', 'createBy', 'Index', 'device'];
   const orderKeys = ['Marca', 'Modelo', 'Año'];
   const [reload, setReload] = useState(false);
+  console.log('blockAds recibe: ' + blockAds);
 
   useEffect(() => {
     setReload(true);
+
     getDocsByUser(index).then((documents) => {
       console.log('documento: ' + JSON.stringify(documents));
       setDatos(documents);
       setReload(false);
+      if (!blockAds) {
+        interstitial2.show();
+      }
     });
   }, []);
 
@@ -45,8 +55,15 @@ export default function Identification(props) {
           }
         />
 
-        <MenuFlotante datos={datos} data={data} />
+        <MenuFlotante
+          datos={datos}
+          data={data}
+          interstitial={interstitial}
+          blockAds={blockAds}
+        />
         <Loading isVisible={reload} text='Cargando...' />
+        <Interstitial2 />
+        <Interstitial />
       </ImageBackground>
     </View>
   );

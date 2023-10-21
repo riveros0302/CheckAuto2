@@ -2,7 +2,7 @@
   "expo": {
     "name": "CheckAuto",
     "slug": "CheckAuto2",
-    "version": "1.0.9",
+    "version": "1.1.7",
     "orientation": "portrait",
     "plugins": ["@react-native-google-signin/google-signin"],
     "icon": "./assets/icon.png",
@@ -23,8 +23,12 @@
       },
       "package": "com.riveros0302.CheckAuto2",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 9,
-      "permissions": ["BILLING", "ACCESS_FINE_LOCATION"]
+      "versionCode": 17,
+      "permissions": [
+        "BILLING",
+        "ACCESS_FINE_LOCATION",
+        "com.google.android.gms.permission.AD_ID"
+      ]
     },
     "hooks": {
       "prebuild": "echo 'do nothing'"
@@ -37,5 +41,8 @@
         "projectId": "81f936ea-3fc8-41c1-840b-f0ebee9586ba"
       }
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-5653888383157044~8000805210"
   }
 }

@@ -178,7 +178,7 @@ export default function AddDocument(props) {
           <Icon
             name={'delete'}
             type='material-community'
-            color={'white'}
+            color={'red'}
             size={40}
             onPress={botondelete}
             containerStyle={{ backgroundColor: 'red', width: '50%' }}
@@ -188,7 +188,7 @@ export default function AddDocument(props) {
         <Icon
           name={nameicon}
           type='material-community'
-          color={'white'}
+          color={'red'}
           size={40}
           onPress={pickDocument}
           containerStyle={styles.iconst}

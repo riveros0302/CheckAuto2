@@ -13,9 +13,9 @@ import MenuFlotante from '../../components/MenuFlotante';
 import Titulo from '../../components/Titulo';
 import { searchFirebase } from '../../utils/Database/auto';
 import { solicitarCalificacion } from '../../components/ReviewGooglePlay';
+import { Interstitial, interstitial } from '../../components/Ads/Interstitial';
 
-export default function Auto(props) {
-  const { route } = props;
+export default function Auto({ route, blockAds }) {
   const { data, index } = route.params;
   const [datos, setDatos] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -87,6 +87,7 @@ export default function Auto(props) {
   return (
     <View>
       <ImageBackground source={background} style={styles.image}>
+        <Interstitial />
         <Titulo title='GENERAL' />
 
         <FlatList
@@ -99,7 +100,13 @@ export default function Auto(props) {
             index.toString() + JSON.stringify(item)
           }
         />
-        <MenuFlotante datos={datos} isPDF={false} data={data} />
+        <MenuFlotante
+          datos={datos}
+          isPDF={false}
+          data={data}
+          interstitial={interstitial}
+          blockAds={blockAds}
+        />
         <SearchBar
           placeholder='Buscar...'
           lightTheme

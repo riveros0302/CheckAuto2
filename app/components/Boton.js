@@ -38,6 +38,7 @@ export default function Boton(props) {
     isCheck,
     isPrincipal,
     isNotification,
+    blockAds,
   } = props;
   const navigation = useNavigation();
   const [isVisible, setIsVisible] = useState(false);
@@ -45,7 +46,12 @@ export default function Boton(props) {
   const selected = async () => {
     switch (item) {
       case 'id':
-        navigation.navigate('Mis Documentos', { index, data });
+        console.log('RECIBIENDO BLOCKADS1: ' + blockAds);
+        navigation.navigate('Mis Documentos', { index, data, blockAds });
+        break;
+      case 'alarma':
+        console.log('RECIBIENDO BLOCKADS2: ' + blockAds);
+        navigation.navigate('Mi Alarma', { index, blockAds });
         break;
       case 'auto':
         await analytics().logEvent('btn_General', {
@@ -54,10 +60,7 @@ export default function Boton(props) {
         });
         navigation.navigate('Mi Auto', { data, index });
         break;
-      case 'alarma':
-        console.log('index recibido en Boton.js: ' + index);
-        navigation.navigate('Mi Alarma', { index });
-        break;
+
       case 'ajustes':
         navigation.navigate('Mis Ajustes');
         break;

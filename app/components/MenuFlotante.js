@@ -27,6 +27,8 @@ export default function MenuFlotante(props) {
     isShowPDF,
     isNotification,
     isLogin,
+    interstitial,
+    blockAds,
   } = props;
   const navigation = useNavigation();
   const [imagen, setImagen] = useState(require('../../assets/Iconos/HOME.png'));
@@ -91,8 +93,17 @@ export default function MenuFlotante(props) {
   };
 
   const ifpdf = () => {
+    if (!isShowPDF) {
+      // si no es showPDF entonces mostrar anuncio
+      if (!blockAds) {
+        interstitial.show();
+      }
+    }
+
     if (isPDF) {
-      shareFile();
+      imageUri
+        ? shareFile()
+        : toastRef.current.show('¡Debes subir un documento!', 2000);
     } else {
       setIsVisible(true);
     }
@@ -115,6 +126,7 @@ export default function MenuFlotante(props) {
         data={data}
         setLoading={setLoading}
       />
+
       <Loading isVisible={loading} text='Generando PDF' />
     </View>
   );

@@ -10,7 +10,8 @@ import React, { useState } from 'react';
 import { background, primary, secondary } from '../../utils/tema';
 import SuscripcionView from '../../components/SuscripcionView';
 
-export default function Suscripcion() {
+export default function Suscripcion({ route }) {
+  const { blockAds } = route.params;
   return (
     <ImageBackground source={background} style={{ height: '100%' }}>
       <View style={styles.viewContainer}>
@@ -18,7 +19,7 @@ export default function Suscripcion() {
           source={require('../../../assets/LOGO.png')}
           style={styles.logo}
         />
-        <SuscripcionView />
+        <SuscripcionView blockAds={blockAds} />
       </View>
     </ImageBackground>
   );

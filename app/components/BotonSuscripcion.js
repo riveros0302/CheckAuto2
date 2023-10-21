@@ -16,7 +16,8 @@ import analytics from '@react-native-firebase/analytics';
 
 export default function BotonSuscripcion(props) {
   const [planSelected, setPlanSelected] = useState(0);
-  const { idSub, tiempo, titulo, packages, setReload, idSubs } = props;
+  const { idSub, tiempo, titulo, packages, setReload, idSubs, isDeleteAds } =
+    props;
   const { user, purchasePackage, restorePermissions } = useRevenueCat();
   const [paquete, setPaquete] = useState(null);
   const navigation = useNavigation();
@@ -24,7 +25,6 @@ export default function BotonSuscripcion(props) {
   useEffect(() => {
     const firstPackage = packages.availablePackages[idSub];
     setPaquete(firstPackage);
-
     Purchases.addCustomerInfoUpdateListener(async (info) => {
       navigation.navigate('home');
       setReload(false);
@@ -80,9 +80,14 @@ export default function BotonSuscripcion(props) {
         <View style={{ flex: 1, alignItems: 'center' }}>
           <Text style={styles.txt1}>{titulo}</Text>
           <Text style={styles.txt1}>
-            {paquete?.product.priceString}/{tiempo}
+            {paquete?.product.priceString}/
+            {isDeleteAds ? 'Solo una vez' : tiempo}
           </Text>
-          <Text style={styles.txt2}>{paquete?.product.description}</Text>
+          <Text style={styles.txt2}>
+            {isDeleteAds
+              ? 'Elimina los anuncios molestos para siempre'
+              : paquete?.product.description}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
