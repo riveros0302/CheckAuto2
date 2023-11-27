@@ -5,16 +5,10 @@ import {
   ActivityIndicator,
   PermissionsAndroid,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Avatar } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
-import { isEmpty } from 'lodash';
-import { updateUrlAuto } from '../utils/Database/auto';
-import firestore from '@react-native-firebase/firestore';
 import ImageResizer from 'react-native-image-resizer';
-import storage from '@react-native-firebase/storage';
-import auth from '@react-native-firebase/auth';
-import { botoncolor } from '../utils/tema';
 
 export default function AvatarCuestionario(props) {
   const { vehiculo, setVehiculo, profile, setProfile, isPrincipal, index } =

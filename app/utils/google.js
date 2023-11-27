@@ -11,8 +11,14 @@ GoogleSignin.configure({
     '730964090293-j8qde5d3aqe9vv5r1i4d2q2dc0p22n3b.apps.googleusercontent.com',
 });
 
-export const onGoogleButtonPress = async (setHidden, toastRef, setLoading) => {
+export const onGoogleButtonPress = async (
+  setHidden,
+  toastRef,
+  setLoading,
+  setLogedNormal
+) => {
   setHidden(false); // Esto es para que al cancelar el inicio de sesión, el Loading desaparezca
+  setLogedNormal(false); //con esto indicamos que no es un inicio normal sino que con google
   try {
     // Check if your device supports Google Play
     await GoogleSignin.hasPlayServices({

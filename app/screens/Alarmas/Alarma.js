@@ -9,6 +9,8 @@ import Boton from '../../components/Boton';
 import Calendario from './Calendario';
 import { getDatesFromUser } from '../../utils/Database/users';
 import Banner2 from '../../components/Ads/Banner2';
+import { getHoursFromFirestore } from '../../utils/Database/setting';
+import TestNotification from './TestNotification';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => {
@@ -25,55 +27,67 @@ export default function Alarma({ route }) {
   const [date2, setDate2] = useState(null);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [indexNot, setIndexNot] = useState();
+  const [time1, setTime1] = useState(null);
 
   const showCalendar = (id) => {
     setDatePickerVisible(true);
     setIndexNot(id);
   };
 
-  const localnotification1 = () => {
+  const localnotification1 = async () => {
     const now = new Date();
     now.setDate(now.getDate() - 1);
-    const triggerTime = new Date(date1);
-    triggerTime.setHours(10, 30, 0); // Establecer la hora a las 10:30 PM
+    const { horaPC, minutePC } = await getHoursFromFirestore();
+    console.log('QUE RECIBE HORAPC: ' + horaPC + ' min: ' + minutePC);
+    // Convierte la cadena date1 en un objeto de fecha
+    const date1Obj = new Date(date1);
+    date1Obj.setHours(horaPC, minutePC, 0); // Establecer la hora a las 9:00 AM
+    const triggerTime = date1Obj.getTime(); // Obtén el tiempo seleccionado en milisegundos
 
+    // Calcula el tiempo en segundos hasta la hora seleccionada
     const secondsDiff = Math.floor((triggerTime - now) / 1000);
-    // Si la diferencia es negativa, agrega un día en segundos
 
-    console.log('Diferencia en segundos:', secondsDiff);
-
-    Notifications.scheduleNotificationAsync({
-      content: {
+    if (secondsDiff > 0) {
+      const notificationContent = {
         title: 'Permiso de Circulación',
-        body: 'Hola, recuerda sacar tu permiso de circulación',
-      },
-      trigger: {
-        seconds: secondsDiff,
-      },
-    });
+        body: 'Hola, recuerda sacar el permiso de circulación este mes.',
+        data: { anyData: 'additional data' }, // Datos adicionales que desees incluir
+      };
+
+      // Programa la notificación con el tiempo en segundos
+      await Notifications.scheduleNotificationAsync({
+        content: notificationContent,
+        trigger: { seconds: secondsDiff },
+      });
+    }
   };
 
-  const localnotification2 = () => {
+  const localnotification2 = async () => {
     const now = new Date();
     now.setDate(now.getDate() - 1);
-
+    const { horaRT, minuteRT } = await getHoursFromFirestore();
+    console.log('QUE RECIBE HORART: ' + horaRT + ' min: ' + minuteRT);
     // Convierte la cadena date1 en un objeto de fecha
     const date2Obj = new Date(date2);
-    date2Obj.setHours(9, 0, 0); // Establecer la hora a las 9:00 AM
+    date2Obj.setHours(horaRT, minuteRT, 0); // Establecer la hora a las 9:00 AM
     const triggerTime = date2Obj.getTime(); // Obtén el tiempo seleccionado en milisegundos
 
+    // Calcula el tiempo en segundos hasta la hora seleccionada
     const secondsDiff = Math.floor((triggerTime - now) / 1000);
-    console.log(secondsDiff);
 
-    Notifications.scheduleNotificationAsync({
-      content: {
+    if (secondsDiff > 0) {
+      const notificationContent = {
         title: 'Revisión Técnica',
         body: 'Hola, recuerda ir a la Revisión Técnica este mes',
-      },
-      trigger: {
-        seconds: secondsDiff,
-      },
-    });
+        data: { anyData: 'additional data' }, // Datos adicionales que desees incluir
+      };
+
+      // Programa la notificación con el tiempo en segundos
+      await Notifications.scheduleNotificationAsync({
+        content: notificationContent,
+        trigger: { seconds: secondsDiff },
+      });
+    }
   };
 
   useEffect(() => {
@@ -126,6 +140,8 @@ export default function Alarma({ route }) {
           indexCar={index}
           localnotification1={localnotification1}
           localnotification2={localnotification2}
+          setTime1={setTime1}
+          time1={time1}
         />
 
         <MenuFlotante isNotification={true} />
@@ -133,6 +149,8 @@ export default function Alarma({ route }) {
       </ImageBackground>
     </View>
   );
+
+  // return <TestNotification />;
 }
 
 const styles = StyleSheet.create({

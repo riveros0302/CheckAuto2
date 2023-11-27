@@ -80,10 +80,10 @@ export const getDatesFromUser = async (index) => {
   }
 };
 
-export const addDataToUser = async () => {
+export const addDataToUser = async (nombre) => {
   try {
     const data = {
-      nombre: auth().currentUser.displayName,
+      nombre: nombre == '' ? auth().currentUser.displayName : nombre,
     };
     // Obtén el ID del usuario actualmente autenticado
     const userId = auth().currentUser.uid;

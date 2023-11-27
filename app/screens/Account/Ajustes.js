@@ -25,7 +25,7 @@ import { deleteUserAccount } from '../../utils/Database/auto';
 import { useNavigation } from '@react-navigation/native';
 import PoliticasyUso from '../../utils/Politics';
 
-export default function Ajustes({ setUser }) {
+export default function Ajustes({ setUser, setUserGoogle, userGoogle, user }) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const { logoutRC, idSubs } = useRevenueCat();
@@ -36,6 +36,7 @@ export default function Ajustes({ setUser }) {
     useState('Contratar plan');
   const [details, setDetails] = useState('');
   const navigation = useNavigation();
+  console.log('AUTH CURRENT USER: ' + JSON.stringify(auth().currentUser));
 
   useEffect(() => {
     switch (idSubs) {
@@ -67,16 +68,26 @@ export default function Ajustes({ setUser }) {
 
   const signOut = async () => {
     try {
-      setTxtLoad('Cerrando Sesión...');
-      setLoading(true);
-      await auth().signOut();
+      if (userGoogle) {
+        setTxtLoad('Cerrando Sesión...');
+        setLoading(true);
+        await auth().signOut();
 
-      // Si el cierre de sesión en Firebase es exitoso, entonces se procede a cerrar la sesión en RevenueCat
-      await logoutRC();
+        // Si el cierre de sesión en Firebase es exitoso, entonces se procede a cerrar la sesión en RevenueCat
+        await logoutRC();
 
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
-      setUser();
+        await GoogleSignin.revokeAccess();
+        await GoogleSignin.signOut();
+        setUserGoogle();
+      } else {
+        setTxtLoad('Cerrando Sesión...');
+        setLoading(true);
+        await auth().signOut();
+        // Si el cierre de sesión en Firebase es exitoso, entonces se procede a cerrar la sesión en RevenueCat
+        await logoutRC();
+        setUser();
+        console.log('Cerrar sesion normal sin google');
+      }
     } catch (error) {
       console.log('Error signing out:', error);
     } finally {
@@ -103,7 +114,7 @@ export default function Ajustes({ setUser }) {
     setTxtLoad('Eliminando Cuenta...');
     setLoading(true);
 
-    await deleteUserAccount()
+    await deleteUserAccount(userGoogle, setUserGoogle, setUser, navigation)
       .then((res) => {
         console.log(res);
       })
@@ -111,12 +122,12 @@ export default function Ajustes({ setUser }) {
         console.log(err);
       })
       .finally(async () => {
-        setLoading(false);
-        await GoogleSignin.revokeAccess();
-        await GoogleSignin.signOut();
-        setUser();
-        navigation.navigate('home');
+        await signOutDelete();
       });
+  };
+
+  const signOutDelete = async () => {
+    setLoading(false);
   };
 
   const toggleSwitch = () => {

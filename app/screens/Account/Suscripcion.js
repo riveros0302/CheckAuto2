@@ -4,19 +4,19 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { Button, Image, CheckBox } from 'react-native-elements';
-import React, { useState } from 'react';
-import { background, primary, secondary } from '../../utils/tema';
-import SuscripcionView from '../../components/SuscripcionView';
+} from "react-native";
+import { Button, Image, CheckBox } from "react-native-elements";
+import React, { useState } from "react";
+import { background, primary, secondary } from "../../utils/tema";
+import SuscripcionView from "../../components/SuscripcionView";
 
 export default function Suscripcion({ route }) {
   const { blockAds } = route.params;
   return (
-    <ImageBackground source={background} style={{ height: '100%' }}>
+    <ImageBackground source={background} style={{ height: "100%" }}>
       <View style={styles.viewContainer}>
         <Image
-          source={require('../../../assets/LOGO.png')}
+          source={require("../../../assets/LOGO.png")}
           style={styles.logo}
         />
         <SuscripcionView blockAds={blockAds} />
@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
     top: 10,
   },
   viewContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   viewSubs: {
-    backgroundColor: 'white',
-    width: '89%',
+    backgroundColor: "white",
+    width: "89%",
     borderRadius: 30,
   },
   marginView: {
@@ -46,33 +46,33 @@ const styles = StyleSheet.create({
   btn: {
     backgroundColor: primary,
     borderRadius: 30,
-    width: '40%',
-    alignSelf: 'center',
+    width: "40%",
+    alignSelf: "center",
     marginBottom: 20,
   },
   titleBtn: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
   },
   nombre: {
-    fontWeight: '900',
+    fontWeight: "900",
     fontSize: 28,
-    color: 'black',
-    alignSelf: 'center',
+    color: "black",
+    alignSelf: "center",
     marginTop: 40,
   },
   linea: {
     width: 250,
     height: 3,
     borderRadius: 10,
-    backgroundColor: 'red',
-    alignSelf: 'center',
+    backgroundColor: "red",
+    alignSelf: "center",
   },
   txtCheck: {
     marginRight: 40,
-    alignSelf: 'center',
+    alignSelf: "center",
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: secondary,
     marginLeft: -15,
   },

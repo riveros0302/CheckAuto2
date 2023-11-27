@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import BotonFlotante from './BotonFlotante';
 import { useNavigation } from '@react-navigation/native';
-import RNFetchBlob from 'rn-fetch-blob';
 import Share from 'react-native-share';
 import Modal from './Modal';
 import { Button, Icon } from 'react-native-elements';

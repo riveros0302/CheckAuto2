@@ -1,15 +1,15 @@
 import {
   StyleSheet,
-  Text,
   View,
   ActivityIndicator,
   PermissionsAndroid,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Avatar } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 import ImageResizer from 'react-native-image-resizer';
 import { uploadImage, filterAuto } from '../utils/uploadPhoto';
+import { botoncolor } from '../utils/tema';
 
 export default function AvatarCar(props) {
   const { vehiculo, setVehiculo, profile, setProfile, isPrincipal, index } =
@@ -112,7 +112,7 @@ export default function AvatarCar(props) {
           <Avatar.Accessory
             size={30}
             onPress={permissionStorage}
-            style={{ backgroundColor: 'grey' }}
+            style={{ backgroundColor: botoncolor }}
           />
         </Avatar>
       )}

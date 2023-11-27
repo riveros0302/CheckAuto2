@@ -62,6 +62,8 @@ export default function Calendario(props) {
     indexCar,
     localnotification1,
     localnotification2,
+    time1,
+    setTime1,
   } = props;
 
   const [isTimePickerVisible, setTimePickerVisible] = useState(false);
@@ -72,38 +74,31 @@ export default function Calendario(props) {
     setDatePickerVisible(true);
   };*/
 
-  const hideDatePicker = () => {
-    setDatePickerVisible(false);
-    switch (index) {
-      case 1:
-        localnotification1();
-        break;
-      case 2:
-        localnotification2();
-        break;
-
-      default:
-        break;
-    }
-  };
-
   const handleDateConfirm = () => {
     if (date) {
       switch (index) {
         case 1:
           setDate1(date);
           addDate1ToUser(date, indexCar);
+          localnotification1();
           break;
         case 2:
           setDate2(date);
           addDate2ToUser(date, indexCar);
+          localnotification2();
           break;
 
         default:
           break;
       }
     }
-    hideDatePicker();
+    setDatePickerVisible(false);
+  };
+
+  const handleTimeConfirm = (time) => {
+    setTime1(time);
+    localnotification1();
+    hideTimePicker();
   };
 
   const showTimePicker = () => {
@@ -189,15 +184,15 @@ export default function Calendario(props) {
         value={index == 1 ? date1 : date2} // Agrega la prop value con el valor de fecha actual
         onConfirm={handleDateConfirm}
         onCancel={hideDatePicker}
-      />
-
-      <DateTimePickerModal
-        isVisible={isTimePickerVisible}
-        mode='time'
-        value={index == 1 ? date1 : date2} // Agrega la prop value con el valor de fecha actual
-        onConfirm={handleTimeConfirm}
-        onCancel={hideTimePicker}
       />*/}
+
+        <DateTimePickerModal
+          isVisible={isTimePickerVisible}
+          mode='time'
+          value={index == 1 ? date1 : date2} // Agrega la prop value con el valor de fecha actual
+          onConfirm={handleTimeConfirm}
+          onCancel={hideTimePicker}
+        />
       </View>
     </Modal>
   );

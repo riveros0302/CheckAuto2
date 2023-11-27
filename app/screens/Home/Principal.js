@@ -3,42 +3,43 @@ import {
   Text,
   View,
   ImageBackground,
-  Button,
   PermissionsAndroid,
-} from 'react-native';
-import React, { useState, useEffect } from 'react';
-import Cuestionario from './Cuestionario';
-import AvatarCar from '../../components/AvatarCar';
-import { isEmpty } from 'lodash';
+  Alert,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import Cuestionario from "./Cuestionario";
+import AvatarCar from "../../components/AvatarCar";
+import { isEmpty } from "lodash";
 import {
   checkIfUserExists,
   getDataCarByUserIdAndIndex,
   getAllDataCarByUserId,
   getLowestIndex,
-} from '../../utils/Database/auto';
-import Boton from '../../components/Boton';
-import BotonFlotante from '../../components/BotonFlotante';
-import { background, colorTexto } from '../../utils/tema';
-import Loading from '../../components/Loading';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
-import MenuFlotante from '../../components/MenuFlotante';
-import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
-import Purchases from 'react-native-purchases';
-import auth from '@react-native-firebase/auth';
-import { isDisabledAccount } from '../../utils/google';
-import Modal from '../../components/Modal';
-import NewVersion from '../../utils/NewVersion';
-import Inicio from './Inicio';
-import Banner from '../../components/Ads/Banner';
-import { Interstitial, interstitial } from '../../components/Ads/Interstitial';
+} from "../../utils/Database/auto";
+import Boton from "../../components/Boton";
+import BotonFlotante from "../../components/BotonFlotante";
+import { background, colorTexto } from "../../utils/tema";
+import Loading from "../../components/Loading";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
+import MenuFlotante from "../../components/MenuFlotante";
+import { useRevenueCat } from "../../utils/RevenueCat/RevenueCatProvider";
+import Purchases from "react-native-purchases";
+import auth from "@react-native-firebase/auth";
+import { isDisabledAccount } from "../../utils/google";
+import Modal from "../../components/Modal";
+import NewVersion from "../../utils/NewVersion";
+import Inicio from "./Inicio";
+import Banner from "../../components/Ads/Banner";
+import { Interstitial, interstitial } from "../../components/Ads/Interstitial";
 
 export default function Principal({
-  user,
-  setUser,
+  userGoogle,
+  setUserGoogle,
   route,
   toastRef,
   blockAds,
   setBlockAds,
+  user,
 }) {
   const [visible, setVisible] = useState(true);
   const [data, setData] = useState({});
@@ -59,9 +60,28 @@ export default function Principal({
   const [tuto, setTuto] = useState(true);
 
   useEffect(() => {
+    if (user) {
+      console.log("Principal inicia con " + JSON.stringify(user));
+      if (!user.emailVerified) {
+        Alert.alert(
+          "Verificar Correo electrónico",
+          "Por favor verifica tu correo electrónico para no perder tus datos",
+          [
+            {
+              text: "Ok",
+              style: "cancel",
+            },
+          ],
+          { cancelable: false }
+        );
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const validarSesion = async () => {
-      const result = await isDisabledAccount(setUser);
-      if (result == 'Esta cuenta ha sido deshabilitada temporalmente') {
+      const result = await isDisabledAccount(setUserGoogle);
+      if (result == "Esta cuenta ha sido deshabilitada temporalmente") {
         toastRef.current.show(result, 3000);
         logoutRC();
       } else {
@@ -69,7 +89,9 @@ export default function Principal({
       }
     };
 
-    validarSesion();
+    if (userGoogle) {
+      // validarSesion();
+    }
   }, []);
 
   useEffect(() => {
@@ -78,7 +100,7 @@ export default function Principal({
         const Lowindex = await getLowestIndex();
         setIndex(!isEmpty(route.params) ? route.params.id : Lowindex);
       } catch (error) {
-        console.error('Error fetching lowest index:', error);
+        console.error("Error fetching lowest index:", error);
       }
     };
 
@@ -90,22 +112,37 @@ export default function Principal({
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         {
-          title: 'Permiso de micrófono',
+          title: "Permiso de micrófono",
           message:
-            'Necesitamos acceder al micrófono para realizar algunas funciones.',
-          buttonPositive: 'Aceptar',
-          buttonNegative: 'Cancelar',
+            "Necesitamos acceder al micrófono para realizar algunas funciones.",
+          buttonPositive: "Aceptar",
+          buttonNegative: "Cancelar",
         }
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Permiso de micrófono otorgado');
+        console.log("Permiso de micrófono otorgado");
         // Puedes realizar acciones que requieran acceso al micrófono aquí
       } else {
-        console.log('Permiso de micrófono denegado');
+        console.log("Permiso de micrófono denegado");
       }
     } catch (err) {
       console.warn(err);
     }
+  };
+
+  //checkear si block-ads esta comprado si esta comprado setBlockAds queda en true para bloquear Banner y Interstitial
+  const checkAds = async () => {
+    setTimeout(async () => {
+      //usamos el Timeout para retrar 1 segundo este codigo para que Purchase sea dsitinto de null
+      const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
+
+      if (customerInfo.entitlements.active["block"]) {
+        setBlockAds(true);
+        console.log("BLOCK ADS COMPRADO");
+      } else {
+        console.log("FALTA COMPRAR BLOCK ADS");
+      }
+    }, 1000);
   };
 
   useEffect(() => {
@@ -113,17 +150,7 @@ export default function Principal({
       setLoading(true);
       // crearAuto;
       requestMicrophonePermission();
-      //checkear si block-ads esta comprado si esta comprado setBlockAds queda en true para bloquear Banner y Interstitial
-      const checkAds = async () => {
-        const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
 
-        if (customerInfo.entitlements.active['block']) {
-          setBlockAds(true);
-          console.log('BLOCK ADS COMPRADO');
-        } else {
-          console.log('FALTA COMPRAR BLOCK ADS');
-        }
-      };
       checkAds();
 
       const fetchUserId = async () => {
@@ -147,7 +174,7 @@ export default function Principal({
             setNumAutos(res.length);
           });
         } catch (error) {
-          console.log('Error al realizar la consulta:', error);
+          console.log("Error al realizar la consulta:", error);
           setLoading(false);
         }
       };
@@ -171,36 +198,36 @@ export default function Principal({
     setVehiculo({});
     const { customerInfo } = await Purchases.logIn(auth().currentUser.uid);
 
-    if (customerInfo.entitlements.active['pro']) {
+    if (customerInfo.entitlements.active["pro"]) {
       setVisible(true);
       setAddCar(true);
       switch (idSubs) {
-        case 'pp_android:pp1m' || 'pp_android:pp1a':
+        case "pp_android:pp1m" || "pp_android:pp1a":
           if (NumAutos >= 3) {
-            console.log('ya tienes 3 vehiculos NumAutos: ' + NumAutos);
+            console.log("ya tienes 3 vehiculos NumAutos: " + NumAutos);
             toastRef.current.show(
-              'Ya has registrado 3 vehiculos, cambiate al plan Pro II',
+              "Ya has registrado 3 vehiculos, cambiate al plan Pro II",
               3000
             );
             setVisible(false);
             setAddCar(false);
           }
           break;
-        case 'po_android:po1m' || 'po_android:po1a':
+        case "po_android:po1m" || "po_android:po1a":
           if (NumAutos >= 6) {
-            console.log('ya tienes 6 vehiculos: ' + NumAutos);
+            console.log("ya tienes 6 vehiculos: " + NumAutos);
             toastRef.current.show(
-              'Ya has registrado 6 vehiculos, cambiate al plan Pro III',
+              "Ya has registrado 6 vehiculos, cambiate al plan Pro III",
               3000
             );
             setVisible(false);
             setAddCar(false);
           }
           break;
-        case 'ppt_android:ppt1m' || 'ppt_android:ppt1a':
+        case "ppt_android:ppt1m" || "ppt_android:ppt1a":
           if (NumAutos >= 12) {
-            console.log('ya tienes 12 vehiculos: ' + NumAutos);
-            toastRef.current.show('Ya has registrado 12 vehiculos', 3000);
+            console.log("ya tienes 12 vehiculos: " + NumAutos);
+            toastRef.current.show("Ya has registrado 12 vehiculos", 3000);
             setVisible(false);
             setAddCar(false);
           }
@@ -210,7 +237,7 @@ export default function Principal({
           break;
       }
     } else {
-      navigation.navigate('suscripcion', { blockAds });
+      navigation.navigate("suscripcion", { blockAds });
     }
 
     //navigation.navigate('borrar');
@@ -220,7 +247,7 @@ export default function Principal({
     <View style={styles.vertical}>
       {tuto && <Inicio setTuto={setTuto} />}
 
-      <ImageBackground source={background} style={{ height: '100%' }}>
+      <ImageBackground source={background} style={{ height: "100%" }}>
         <MenuFlotante
           main={true}
           data={data}
@@ -247,17 +274,17 @@ export default function Principal({
 
           <View style={styles.container}>
             <Boton
-              icono={require('../../../assets/Iconos/MENU1.png')}
-              item='auto'
-              titulo='GENERAL'
+              icono={require("../../../assets/Iconos/MENU1.png")}
+              item="auto"
+              titulo="GENERAL"
               data={data}
               index={index}
               isPrincipal={true}
             />
             <Boton
-              icono={require('../../../assets/Iconos/DOCUMENTOS.png')}
-              item='id'
-              titulo='DOCUMENTOS'
+              icono={require("../../../assets/Iconos/DOCUMENTOS.png")}
+              item="id"
+              titulo="DOCUMENTOS"
               data={data}
               index={index}
               isPrincipal={true}
@@ -266,28 +293,28 @@ export default function Principal({
           </View>
           <View style={styles.container}>
             <Boton
-              icono={require('../../../assets/Iconos/ALARMAS.png')}
-              item='alarma'
-              titulo='NOTIFICACIONES'
+              icono={require("../../../assets/Iconos/ALARMAS.png")}
+              item="alarma"
+              titulo="NOTIFICACIONES"
               index={index}
               isPrincipal={true}
               blockAds={blockAds}
             />
             <Boton
-              icono={require('../../../assets/Iconos/AJUSTES.png')}
-              item='ajustes'
-              titulo='AJUSTES'
+              icono={require("../../../assets/Iconos/AJUSTES.png")}
+              item="ajustes"
+              titulo="AJUSTES"
               isPrincipal={true}
             />
           </View>
           <BotonFlotante
-            source={require('../../../assets/Iconos/AGREGAR.png')}
-            posicion={'center'}
+            source={require("../../../assets/Iconos/AGREGAR.png")}
+            posicion={"center"}
             onpress={pressAdd}
           />
           <BotonFlotante
-            source={require('../../../assets/Iconos/EDITAR.png')}
-            posicion={'center'}
+            source={require("../../../assets/Iconos/EDITAR.png")}
+            posicion={"center"}
             onpress={editCar}
             isEdit={true}
           />
@@ -311,7 +338,7 @@ export default function Principal({
           />
         )}
         <ShowUpdate />
-        <Loading isVisible={loading} text='Cargando datos...' />
+        <Loading isVisible={loading} text="Cargando datos..." />
         {!blockAds && <Banner />}
       </ImageBackground>
     </View>
@@ -333,27 +360,27 @@ function ShowUpdate() {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   vertical: {
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   viewperfil: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 15,
     marginTop: 20,
   },
   nombre: {
-    fontWeight: '900',
+    fontWeight: "900",
     fontSize: 30,
     color: colorTexto,
   },
   perfilhzt: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   subtitle: {
     color: colorTexto,
-    fontWeight: '900',
+    fontWeight: "900",
     fontSize: 18,
   },
   circle: {

@@ -22,7 +22,6 @@ import { Swipeable } from 'react-native-gesture-handler';
 import Purchases from 'react-native-purchases';
 import auth from '@react-native-firebase/auth';
 import { useRevenueCat } from '../../utils/RevenueCat/RevenueCatProvider';
-import Loading from '../../components/Loading';
 
 export default function Todos(props) {
   const { route } = props;
@@ -89,6 +88,7 @@ export default function Todos(props) {
                   navigation={navigation}
                   setAutos={setAutos}
                   setLoading={setLoading}
+                  toastRef={toastRef}
                 />
               )}
               keyExtractor={(item) => item.Index.toString()}
@@ -101,7 +101,7 @@ export default function Todos(props) {
 }
 
 function BotonAuto(props) {
-  const { item, navigation, setAutos, setLoading } = props;
+  const { item, navigation, setAutos, setLoading, toastRef } = props;
 
   // Función para actualizar los vehículos en el estado local
   const updateAutos = (newAutos) => {
@@ -118,6 +118,7 @@ function BotonAuto(props) {
         updateAutos((prevAutos) =>
           prevAutos.filter((auto) => auto.Index !== item.item.Index)
         );
+        toastRef.current.show('Vehículo eliminado correctamente', 2000);
       })
       .catch((err) => {
         console.log(err);

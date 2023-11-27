@@ -608,7 +608,12 @@ export const deleteFolder = async (folderPath) => {
 };
 
 // Función para eliminar documentos en la colección 'car', carpeta 'Avatar' y carpeta 'Documentos'
-export const deleteUserAccount = () => {
+export const deleteUserAccount = (
+  userGoogle,
+  setUserGoogle,
+  setUser,
+  navigation
+) => {
   return new Promise(async (resolve, reject) => {
     const currentUser = auth().currentUser;
 
@@ -637,10 +642,25 @@ export const deleteUserAccount = () => {
       await deleteFolder(`Avatar/${currentUser.uid}`);
       await deleteFolder(`Documentos/${currentUser.uid}`);
 
-      // Eliminar la cuenta de usuario
-      await currentUser.delete();
       // Cerrar la sesión del usuario
-      await auth().signOut();
+      //  await auth().signOut();
+
+      // Eliminar la cuenta de usuario
+      //  await currentUser.delete();
+
+      if (userGoogle) {
+        // Eliminar la cuenta de usuario
+
+        await currentUser.delete();
+        setUserGoogle();
+        await GoogleSignin.revokeAccess();
+        await GoogleSignin.signOut();
+      } else {
+        // Eliminar la cuenta de usuario
+        await currentUser.delete();
+        setUser(); //con esto vacio deberia cambiar a login ya que en App dice si hay User entonces cambia
+        await auth().signOut();
+      }
 
       resolve('Documentos y carpetas eliminados correctamente.');
     } catch (error) {

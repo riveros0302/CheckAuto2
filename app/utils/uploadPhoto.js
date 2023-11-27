@@ -2,7 +2,6 @@ import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { updateUrlAuto } from './Database/auto';
-import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 
 export const uploadImage = async (uri, index) => {
@@ -195,8 +194,57 @@ export const downloadImage = async (
   const { config, fs } = RNFetchBlob;
   const downloads = fs.dirs?.DownloadDir;
   const localFilePath = pdfurl
-    ? downloads + '/' + titulo + index + '.pdf'
-    : downloads + '/' + titulo + index + '.jpg';
+    ? downloads + '/' + titulo + index + auth().currentUser.uid + '.pdf'
+    : downloads + '/' + titulo + index + auth().currentUser.uid + '.jpg';
+
+  try {
+    // Verificar si el archivo ya existe en la ubicación local
+    const fileExists = await fs.exists(localFilePath);
+
+    if (fileExists) {
+      console.log('Archivo existente encontrado, eliminando:', localFilePath);
+
+      // Eliminar el archivo existente
+      await fs.unlink(localFilePath);
+
+      console.log('Archivo eliminado localmente.');
+    }
+
+    console.log('Descargando archivo...');
+    // Descargar el archivo (como en tu código original)
+    const res = await config({
+      fileCache: true,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        notification: true,
+        path: localFilePath,
+      },
+    }).fetch('GET', pdfurl ? pdfurl.uri : imageUri);
+
+    console.log('Archivo descargado correctamente:', res.path());
+    return res.path(); // Devolver la ruta del archivo descargado
+  } catch (error) {
+    console.error('Error al descargar o enviar el archivo:', error);
+    throw error;
+  }
+};
+
+//EL CODIGO SIGUIENTE ES EL ANITGUO POR SI EL QUE ESTA ARRIBA FALLA O TIENE ALGO QUE NO TOMAMOS EN CUENTA
+/*export const downloadImage = async (
+  pdfurl,
+  imageUri,
+  titulo,
+  index,
+  setReload,
+  setTxtLoad
+) => {
+  setReload(true);
+  setTxtLoad('Compartiendo Documento...');
+  const { config, fs } = RNFetchBlob;
+  const downloads = fs.dirs?.DownloadDir;
+  const localFilePath = pdfurl
+    ? downloads + '/' + titulo + index + auth().currentUser.uid + '.pdf'
+    : downloads + '/' + titulo + index + auth().currentUser.uid + '.jpg';
 
   try {
     // Verificar si el archivo ya existe en la ubicación local
@@ -224,4 +272,4 @@ export const downloadImage = async (
     console.error('Error al descargar o enviar el archivo:', error);
     throw error;
   }
-};
+};*/
