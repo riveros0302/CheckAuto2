@@ -184,6 +184,7 @@ export default function Principal({
   }, [index, isFocused, visible]);
 
   const editCar = () => {
+    console.log("QUE RECIBO EN PRINCIPAL: " + JSON.stringify(data));
     setVehiculo(data);
     setAddCar(true);
     setIsUpdate(true); //este state servira para indicarle a firestore que no sume un index sino que lo mantenga ya que es una actualizacion del mismo

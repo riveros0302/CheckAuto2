@@ -55,6 +55,7 @@ export default function Cuestionario(props) {
   const [isFoto, setIsFoto] = useState(false); //este state estaba en cuestionario pero lo pasamos para aca para poder usarlo aqui y enviarlo a cuestionario
   const [showModalInfo, setShowModalInfo] = useState(false);
   const [rindex, setRindex] = useState();
+  const [isNew, setIsNew] = useState(false);
 
   useEffect(() => {
     if (localProfile != "") {
@@ -97,8 +98,8 @@ export default function Cuestionario(props) {
       Transmision: "",
       Motor: "",
       Rendimiento: "",
-      N_motor: "",
-      N_chasis: "",
+      Numero_Motor: "",
+      Numero_Chasis: "",
     };
 
     // Fusionar los valores ingresados por el usuario con los campos vacíos predeterminados
@@ -107,18 +108,20 @@ export default function Cuestionario(props) {
     if (isFoto || hiddenIMG) {
       //setData({});
       if (isEditIndex) {
-        await insertAuto(vehiculoFinal, isUpdate, index);
+        setIsNew(false); //con esto indicamos que se vehiculo viene cargado con documentos aun que esen vacios
+        await insertAuto(vehiculoFinal, isUpdate, index, isNew);
         setAddCar(false);
         setVisible(false);
         setLoadModal(false);
         toastRef.current.show("Vehiculo modificado correctamente", 3000);
       } else {
+        setIsNew(true); //con esto indicamos que vehiculo viene sin el objeto documentos
         const lastindex = await getLastIndexForUser();
         const indexfinal =
           lastindex == null ? 0 : isUpdate ? lastindex : lastindex + 1;
 
-        await insertAuto(vehiculoFinal, isUpdate, indexfinal);
-        auth().currentUser.reload(); //recargar para que emailVerified sea true si el usuario verifica
+        await insertAuto(vehiculoFinal, isUpdate, indexfinal, isNew);
+        // auth().currentUser.reload(); //recargar para que emailVerified sea true si el usuario verifica
         setAddCar(false);
         setVisible(false);
         setLoadModal(false);

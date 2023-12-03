@@ -1,5 +1,5 @@
-import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
+import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 
 export const addDate1ToUser = async (date1, indexCar) => {
   try {
@@ -8,7 +8,7 @@ export const addDate1ToUser = async (date1, indexCar) => {
     const dataToUpdate = {};
     dataToUpdate[key] = date1 || null;
 
-    await firestore().collection('users').doc(auth().currentUser.uid).set(
+    await firestore().collection("users").doc(auth().currentUser.uid).set(
       dataToUpdate,
 
       { merge: true }
@@ -28,14 +28,14 @@ export const addDate2ToUser = async (date2, indexCar) => {
     dataToUpdate[key] = date2 || null;
 
     const userDoc = await firestore()
-      .collection('users')
+      .collection("users")
       .doc(auth().currentUser.uid)
       .get();
 
     const userDates = userDoc.data();
 
     await firestore()
-      .collection('users')
+      .collection("users")
       .doc(auth().currentUser.uid)
       .set(
         {
@@ -54,7 +54,7 @@ export const addDate2ToUser = async (date2, indexCar) => {
 export const getDatesFromUser = async (index) => {
   try {
     const snapshot = await firestore()
-      .collection('users')
+      .collection("users")
       .doc(auth().currentUser.uid)
       .get();
 
@@ -71,25 +71,25 @@ export const getDatesFromUser = async (index) => {
 
       return { date1, date2 };
     } else {
-      console.log('No se encontraron datos para el usuario.');
+      console.log("No se encontraron datos para el usuario.");
       return { date1: null, date2: null };
     }
   } catch (error) {
-    console.log('Error al obtener las fechas del usuario:', error.message);
-    throw new Error('No se pudieron obtener las fechas del usuario.');
+    console.log("Error al obtener las fechas del usuario:", error.message);
+    throw new Error("No se pudieron obtener las fechas del usuario.");
   }
 };
 
 export const addDataToUser = async (nombre) => {
   try {
     const data = {
-      nombre: nombre == '' ? auth().currentUser.displayName : nombre,
+      nombre: nombre == "" ? auth().currentUser.displayName : nombre,
     };
     // Obtén el ID del usuario actualmente autenticado
     const userId = auth().currentUser.uid;
 
     // Obtiene los datos actuales del usuario
-    const userDoc = await firestore().collection('users').doc(userId).get();
+    const userDoc = await firestore().collection("users").doc(userId).get();
 
     const existingData = userDoc.data();
 
@@ -98,12 +98,31 @@ export const addDataToUser = async (nombre) => {
 
     // Actualiza el documento del usuario con los datos combinados
     await firestore()
-      .collection('users')
+      .collection("users")
       .doc(userId)
       .set(newData, { merge: true });
 
-    console.log('Datos agregados al usuario exitosamente.');
+    console.log("Datos agregados al usuario exitosamente.");
   } catch (error) {
-    console.log('Error al agregar datos al usuario:', error.message);
+    console.log("Error al agregar datos al usuario:", error.message);
+  }
+};
+
+export const addFeedbackToUser = async (mensaje) => {
+  try {
+    const data = {
+      email: auth().currentUser.email,
+      mensaje: mensaje,
+    };
+
+    // Actualiza el documento del usuario con los datos combinados
+    await firestore()
+      .collection("feedback")
+      .doc(auth().currentUser.uid)
+      .set(data, { merge: true });
+
+    console.log("Mensaje agregado al feedback exitosamente.");
+  } catch (error) {
+    console.log("Error al agregar mensaje:", error.message);
   }
 };

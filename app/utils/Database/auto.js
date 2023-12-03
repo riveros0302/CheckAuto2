@@ -1,21 +1,10 @@
-/*import {
-  addDoc,
-  collection,
-  updateDoc,
-  doc,
-  getDoc,
-  query,
-  where,
-  getDocs,
-  deleteDoc,
-} from 'firebase/firestore';*/
-import { Platform } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage';
-import auth from '@react-native-firebase/auth';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { Platform } from "react-native";
+import firestore from "@react-native-firebase/firestore";
+import storage from "@react-native-firebase/storage";
+import auth from "@react-native-firebase/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
-export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
+export const insertAuto = async (vehiculo, isUpdate, indexfinal, isNew) => {
   //el index que recibimos aqui es para identificar el auto que esta seleccionado ya que en esta funcion arrojará siempre el ultimo index lo cual no siempre se necesita
   try {
     // Obtener el UID del usuario actual
@@ -23,11 +12,12 @@ export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
 
     // Consultar la colección "car" para obtener la cantidad de documentos con el mismo UID
     const q = firestore()
-      .collection('car')
-      .where('createBy', '==', currentUserUid)
-      .where('Index', '==', indexfinal);
+      .collection("car")
+      .where("createBy", "==", currentUserUid)
+      .where("Index", "==", indexfinal);
 
-    console.log('cual es el last index?: ' + indexfinal);
+    console.log("cual es el last index?: " + indexfinal);
+    console.log("VEHICULO VIENE CON: " + JSON.stringify(vehiculo));
 
     // Crear un nombre para el documento combinando el UID y el índice
     const documentoNombre = `${indexfinal}_${currentUserUid}`;
@@ -54,16 +44,40 @@ export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
       Transmision: vehiculo.Transmision,
       Motor: vehiculo.Motor,
       Rendimiento: vehiculo.Rendimiento,
-      Numero_Motor: vehiculo.N_motor,
-      Numero_Chasis: vehiculo.N_chasis,
+      Numero_Motor: vehiculo.Numero_Motor,
+      Numero_Chasis: vehiculo.Numero_Chasis,
       documentos: {
-        licencia_Conducir: '',
-        permiso_Circulacion: '',
-        soap: '',
-        revision_Tecnica: '',
-        inscripcion: '',
-        otros: '',
-        padron: '',
+        licencia_Conducir: isNew
+          ? ""
+          : vehiculo.documentos
+          ? vehiculo.documentos.licencia_Conducir
+          : "",
+        permiso_Circulacion: isNew
+          ? ""
+          : vehiculo.documentos
+          ? vehiculo.documentos.permiso_Circulacion
+          : "",
+        soap: isNew ? "" : vehiculo.documentos ? vehiculo.documentos.soap : "",
+        revision_Tecnica: isNew
+          ? ""
+          : vehiculo.documentos
+          ? vehiculo.documentos.revision_Tecnica
+          : "",
+        inscripcion: isNew
+          ? ""
+          : vehiculo.documentos
+          ? vehiculo.documentos.inscripcion
+          : "",
+        otros: isNew
+          ? ""
+          : vehiculo.documentos
+          ? vehiculo.documentos.otros
+          : "",
+        padron: isNew
+          ? ""
+          : vehiculo.documentos
+          ? vehiculo.documentos.padron
+          : "",
       },
     };
 
@@ -74,7 +88,7 @@ export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
 
     // Añadir un nuevo documento en la colección "car" con el nombre de documento personalizado
     await firestore()
-      .collection('car')
+      .collection("car")
       .doc(documentoNombre) // Usar el nombre de documento personalizado
       .set(vehiculoData, { merge: true }); // Usa merge: true para mantener los campos existentes si isUpdate es true
   } catch (error) {
@@ -84,7 +98,7 @@ export const insertAuto = async (vehiculo, isUpdate, indexfinal) => {
 
 export const updateUrlAuto = async (docId, url) => {
   try {
-    const carDocRef = firestore().collection('car').doc(docId);
+    const carDocRef = firestore().collection("car").doc(docId);
 
     await carDocRef.update({
       url_foto: url,
@@ -100,9 +114,9 @@ export const updateAuto = async (campo, value, index) => {
   return new Promise(async (resolve, reject) => {
     try {
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', auth().currentUser.uid)
-        .where('Index', '==', index);
+        .collection("car")
+        .where("createBy", "==", auth().currentUser.uid)
+        .where("Index", "==", index);
 
       const querySnapshot = await q.get();
       const updatePromises = [];
@@ -113,7 +127,7 @@ export const updateAuto = async (campo, value, index) => {
 
       await Promise.all(updatePromises);
 
-      resolve('Actualización exitosa');
+      resolve("Actualización exitosa");
     } catch (error) {
       reject(error);
     }
@@ -125,7 +139,7 @@ const dataUpdate = async (docId, campo, value) => {
     const dataToUpdate = {};
     dataToUpdate[campo] = value;
 
-    await firestore().collection('car').doc(docId).update(dataToUpdate);
+    await firestore().collection("car").doc(docId).update(dataToUpdate);
   } catch (error) {
     throw error;
   }
@@ -139,8 +153,8 @@ export const checkIfUserExists = () => {
 
       // Consulta la colección "car" para documentos con el mismo UID
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', currentUserUid);
+        .collection("car")
+        .where("createBy", "==", currentUserUid);
 
       const querySnapshot = await q.get();
       resolve(querySnapshot.size === 0); // Resuelve true si no hay documentos
@@ -153,8 +167,8 @@ export const checkIfUserExists = () => {
 export const getDataCarByUserId = () => {
   return new Promise(async (resolve, reject) => {
     const q = query(
-      collection(db, 'car'),
-      where('createBy', '==', auth().currentUser.uid)
+      collection(db, "car"),
+      where("createBy", "==", auth().currentUser.uid)
     );
 
     const querySnapshot = await getDocs(q);
@@ -172,15 +186,16 @@ export const getDataCarByUserIdAndIndex = (index) => {
 
       // Consulta la colección "car" para documentos con el mismo UID y el índice proporcionado
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', currentUserUid)
-        .where('Index', '==', index);
+        .collection("car")
+        .where("createBy", "==", currentUserUid)
+        .where("Index", "==", index);
 
       const querySnapshot = await q.get();
       const carData = [];
 
       querySnapshot.forEach((doc) => {
         resolve(doc.data());
+        //  console.log("RECIBO: " + JSON.stringify(doc.data()));
       });
     } catch (error) {
       reject(error);
@@ -192,9 +207,9 @@ export const getInfoAutoIndex = (index) => {
   return new Promise(async (resolve, reject) => {
     try {
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', auth().currentUser.uid)
-        .where('Index', '==', index);
+        .collection("car")
+        .where("createBy", "==", auth().currentUser.uid)
+        .where("Index", "==", index);
 
       const querySnapshot = await q.get();
       const carData = [];
@@ -214,8 +229,8 @@ export const getAllDataCarByUserId = (num) => {
   return new Promise(async (resolve, reject) => {
     try {
       let q = firestore()
-        .collection('car')
-        .where('createBy', '==', auth().currentUser.uid);
+        .collection("car")
+        .where("createBy", "==", auth().currentUser.uid);
 
       if (num) {
         // Consultar el número total de documentos
@@ -244,9 +259,9 @@ export const getAllDataCarByUserId = (num) => {
 export const getAllDataCarByUserIdAndIndex = (index) => {
   return new Promise(async (resolve, reject) => {
     const q = query(
-      collection(db, 'car'),
-      where('createBy', '==', auth().currentUser.uid),
-      where('Index', '==', index)
+      collection(db, "car"),
+      where("createBy", "==", auth().currentUser.uid),
+      where("Index", "==", index)
     );
 
     const querySnapshot = await getDocs(q);
@@ -265,9 +280,9 @@ export const getFirstDataCarByUserId = () => {
     const Lowindex = await getLowestIndex();
     try {
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', auth().currentUser.uid)
-        .where('Index', '==', Lowindex);
+        .collection("car")
+        .where("createBy", "==", auth().currentUser.uid)
+        .where("Index", "==", Lowindex);
 
       const querySnapshot = await q.get();
       const cars = []; // Array para almacenar los datos de los autos
@@ -285,17 +300,17 @@ export const getFirstDataCarByUserId = () => {
 
 export function searchFirebase(searchText, index) {
   return new Promise((resolve, reject) => {
-    const collectionRef = firestore().collection('car');
+    const collectionRef = firestore().collection("car");
 
     // Realiza la consulta en Firestore
     const query = collectionRef
-      .where('createBy', '==', auth().currentUser.uid)
-      .where('Index', '==', index);
+      .where("createBy", "==", auth().currentUser.uid)
+      .where("Index", "==", index);
 
     query
       .get()
       .then((querySnapshot) => {
-        if (searchText.trim() === '') {
+        if (searchText.trim() === "") {
           resolve([]); // Resuelve con un array vacío si searchText está vacío
         } else {
           const filteredData = [];
@@ -338,9 +353,9 @@ export const getDocsByUser = (index) => {
     try {
       // Consultar la colección "car" para obtener los documentos que cumplan las condiciones
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', auth().currentUser.uid)
-        .where('Index', '==', index);
+        .collection("car")
+        .where("createBy", "==", auth().currentUser.uid)
+        .where("Index", "==", index);
 
       const querySnapshot = await q.get();
       const documents = querySnapshot.docs.map((doc) => doc.data().documentos);
@@ -369,7 +384,7 @@ export const uploadPDFToFirebase = async (pdfBlobURL, index, titulo) => {
       // Si la versión en imagen existe, eliminarla
       if (imageDownloadURL) {
         await imageRef.delete();
-        console.log('Versión en imagen existente eliminada.');
+        console.log("Versión en imagen existente eliminada.");
       }
 
       if (pdfBlobURL) {
@@ -381,17 +396,17 @@ export const uploadPDFToFirebase = async (pdfBlobURL, index, titulo) => {
         const downloadURL = await reference.getDownloadURL();
 
         const q = firestore()
-          .collection('car')
-          .where('createBy', '==', auth().currentUser.uid)
-          .where('Index', '==', index);
+          .collection("car")
+          .where("createBy", "==", auth().currentUser.uid)
+          .where("Index", "==", index);
 
         const querySnapshot = await q.get();
 
         if (querySnapshot.empty) {
-          console.log('No se encontró el documento en Firestore');
+          console.log("No se encontró el documento en Firestore");
           return reject(
             new Error(
-              'No se encontró el documento en Firestore desde la funcion uploadPDFToFirebase()'
+              "No se encontró el documento en Firestore desde la funcion uploadPDFToFirebase()"
             )
           );
         }
@@ -400,10 +415,10 @@ export const uploadPDFToFirebase = async (pdfBlobURL, index, titulo) => {
         const carDocSnapshot = await carDocRef.get();
 
         if (!carDocSnapshot.exists) {
-          console.log('El documento no existe en Firestore');
+          console.log("El documento no existe en Firestore");
           return reject(
             new Error(
-              'El documento no existe en Firestore desde la funcion uploadPDFToFirebase()'
+              "El documento no existe en Firestore desde la funcion uploadPDFToFirebase()"
             )
           );
         }
@@ -416,14 +431,14 @@ export const uploadPDFToFirebase = async (pdfBlobURL, index, titulo) => {
           documentos: documentosData,
         });
 
-        console.log('Documento actualizado exitosamente.');
+        console.log("Documento actualizado exitosamente.");
         resolve(downloadURL);
       } else {
-        console.log('No PDF selected.');
-        reject(new Error('No PDF selected.'));
+        console.log("No PDF selected.");
+        reject(new Error("No PDF selected."));
       }
     } catch (error) {
-      console.log('Error al subir el archivo PDF a Firebase Storage: ' + error);
+      console.log("Error al subir el archivo PDF a Firebase Storage: " + error);
       reject(error);
     }
   });
@@ -433,27 +448,27 @@ export const getURLFromFirestore = async (index, nameDoc) => {
   try {
     // Consultar la colección "car" para obtener el documento que cumpla las condiciones
     const q = firestore()
-      .collection('car')
-      .where('createBy', '==', auth().currentUser.uid)
-      .where('Index', '==', index);
+      .collection("car")
+      .where("createBy", "==", auth().currentUser.uid)
+      .where("Index", "==", index);
 
     const querySnapshot = await q.get();
 
     if (querySnapshot.empty) {
-      throw new Error('No se encontró el documento en Firestore');
+      throw new Error("No se encontró el documento en Firestore");
     }
 
     const carDocRef = querySnapshot.docs[0].ref;
     const carDocSnapshot = await carDocRef.get();
 
     if (!carDocSnapshot.exists) {
-      throw new Error('El documento no existe en Firestore');
+      throw new Error("El documento no existe en Firestore");
     }
 
     // Obtener la URL del subcampo específico en el campo "documentos"
     const documentosData = carDocSnapshot.data().documentos;
     // Verificar si la palabra 'pdf' está en la URL
-    const isPdf = documentosData[nameDoc].includes('pdf');
+    const isPdf = documentosData[nameDoc].includes("pdf");
     if (documentosData && documentosData[nameDoc]) {
       return {
         url: documentosData[nameDoc],
@@ -467,7 +482,7 @@ export const getURLFromFirestore = async (index, nameDoc) => {
     }
   } catch (error) {
     throw new Error(
-      'Error al obtener la URL desde Firestore: ' + error.message
+      "Error al obtener la URL desde Firestore: " + error.message
     );
   }
 };
@@ -477,20 +492,20 @@ export const deleteCar = (index) => {
     try {
       const currentUser = auth().currentUser;
       if (!currentUser) {
-        reject(new Error('Usuario no autenticado'));
+        reject(new Error("Usuario no autenticado"));
         return;
       }
 
       // Consultar la colección "car" para obtener el documento que cumpla las condiciones
       const q = firestore()
-        .collection('car')
-        .where('createBy', '==', currentUser.uid)
-        .where('Index', '==', index);
+        .collection("car")
+        .where("createBy", "==", currentUser.uid)
+        .where("Index", "==", index);
 
       const querySnapshot = await q.get();
 
       if (querySnapshot.empty) {
-        reject(new Error('No se encontró el documento en Firestore'));
+        reject(new Error("No se encontró el documento en Firestore"));
         return;
       }
 
@@ -505,9 +520,9 @@ export const deleteCar = (index) => {
       // Eliminar el documento en Firestore
       await carDocRef.delete();
 
-      resolve('El documento y la imagen fueron eliminados correctamente.');
+      resolve("El documento y la imagen fueron eliminados correctamente.");
     } catch (error) {
-      reject(new Error('Error al eliminar el documento: ' + error.message));
+      reject(new Error("Error al eliminar el documento: " + error.message));
     }
   });
 };
@@ -515,10 +530,10 @@ export const deleteCar = (index) => {
 export const getLastIndexForUser = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const carCollection = firestore().collection('car');
+      const carCollection = firestore().collection("car");
       const querySnapshot = await carCollection
-        .where('createBy', '==', auth().currentUser.uid)
-        .orderBy('Index', 'desc')
+        .where("createBy", "==", auth().currentUser.uid)
+        .orderBy("Index", "desc")
         .limit(1)
         .get();
 
@@ -533,7 +548,7 @@ export const getLastIndexForUser = () => {
         resolve(defaultValue); // Resuelve la promesa con el valor predeterminado
       }
     } catch (error) {
-      console.error('Error al obtener el idAuto más alto:', error);
+      console.error("Error al obtener el idAuto más alto:", error);
       reject(error); // Rechaza la promesa y lanza el error para manejarlo en un nivel superior
     }
   });
@@ -546,9 +561,9 @@ export const getLowestIndex = () => {
 
       // Consultar la colección "car" para obtener los documentos del usuario ordenados por Index
       const querySnapshot = await firestore()
-        .collection('car')
-        .where('createBy', '==', userId)
-        .orderBy('Index')
+        .collection("car")
+        .where("createBy", "==", userId)
+        .orderBy("Index")
         .limit(1)
         .get();
 
@@ -561,7 +576,7 @@ export const getLowestIndex = () => {
         resolve(0); // O cualquier valor que consideres apropiado
       }
     } catch (error) {
-      console.error('Error fetching lowest index:', error);
+      console.error("Error fetching lowest index:", error);
       reject(error);
     }
   });
@@ -572,7 +587,7 @@ export const deleteFolder = async (folderPath) => {
   const currentUser = auth().currentUser;
 
   if (!currentUser) {
-    throw new Error('Usuario no autenticado');
+    throw new Error("Usuario no autenticado");
   }
 
   try {
@@ -584,7 +599,7 @@ export const deleteFolder = async (folderPath) => {
 
     // Verificar si la carpeta está vacía
     if (listResult.items.length === 0) {
-      console.log('La carpeta está vacía, no se necesita eliminar.');
+      console.log("La carpeta está vacía, no se necesita eliminar.");
       return; // Salir de la función si la carpeta está vacía
     }
 
@@ -599,10 +614,10 @@ export const deleteFolder = async (folderPath) => {
     // Eliminar la carpeta en sí
     await folderRef.delete();
   } catch (error) {
-    if (error.code === 'storage/object-not-found') {
-      console.log('La carpeta ya ha sido eliminada.');
+    if (error.code === "storage/object-not-found") {
+      console.log("La carpeta ya ha sido eliminada.");
     } else {
-      throw new Error('Error al eliminar la carpeta: ' + error.message);
+      throw new Error("Error al eliminar la carpeta: " + error.message);
     }
   }
 };
@@ -618,15 +633,15 @@ export const deleteUserAccount = (
     const currentUser = auth().currentUser;
 
     if (!currentUser) {
-      reject(new Error('Usuario no autenticado'));
+      reject(new Error("Usuario no autenticado"));
       return;
     }
 
     try {
       // Eliminar documentos en la colección 'car' donde createBy == currentUser.uid
       const querySnapshot = await firestore()
-        .collection('car')
-        .where('createBy', '==', currentUser.uid)
+        .collection("car")
+        .where("createBy", "==", currentUser.uid)
         .get();
 
       if (!querySnapshot.empty) {
@@ -662,13 +677,34 @@ export const deleteUserAccount = (
         await auth().signOut();
       }
 
-      resolve('Documentos y carpetas eliminados correctamente.');
+      resolve("Documentos y carpetas eliminados correctamente.");
     } catch (error) {
       reject(
         new Error(
-          'Error al eliminar los documentos y carpetas: ' + error.message
+          "Error al eliminar los documentos y carpetas: " + error.message
         )
       );
     }
+  });
+};
+
+export const reauthenticate = (currentPassword) => {
+  return new Promise((resolve, reject) => {
+    const user = auth().currentUser;
+    const credential = auth.EmailAuthProvider.credential(
+      user.email,
+      currentPassword
+    );
+
+    user
+      .reauthenticateWithCredential(credential)
+      .then(() => {
+        // Reautenticación exitosa
+        resolve("Reautenticación exitosa");
+      })
+      .catch((error) => {
+        // Manejar errores de reautenticación
+        reject(error);
+      });
   });
 };

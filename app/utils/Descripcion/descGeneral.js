@@ -29,7 +29,7 @@ export const descripciones = {
 6. Ingresa el número de chasis o la placa patente del vehículo.
 
 7. Haz clic en "Buscar".`,
-  N_chasis: `Para obtener el número de chasis de tu vehículo puedes ingresar la patente aqui: https://www.prt.cl/Paginas/RevisionTecnica.aspx
+  Numero_Chasis: `Para obtener el número de chasis de tu vehículo puedes ingresar la patente aqui: https://www.prt.cl/Paginas/RevisionTecnica.aspx
   o puedes seguir los siguientes pasos:
 
 1. Revisa los documentos del vehículo: En la documentación del vehículo, como la ficha técnica o el permiso de circulación, podrás encontrar el número de chasis del vehículo.
@@ -177,7 +177,7 @@ Si tu vehículo tiene un rendimiento de 12 km/L, significa que puedes recorrer 1
 Si tu vehículo tiene un rendimiento de 30 mpg, significa que puedes recorrer 30 millas con un galón de combustible.
 Cómo se muestra en el Tablero`,
 
-  N_motor: `Puedes ingresar la patente aqui: https://www.prt.cl/Paginas/RevisionTecnica.aspx
+  Numero_Motor: `Puedes ingresar la patente aqui: https://www.prt.cl/Paginas/RevisionTecnica.aspx
   
  o consulta el Manual del Propietario:
 

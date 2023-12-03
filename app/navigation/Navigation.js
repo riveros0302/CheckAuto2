@@ -72,6 +72,7 @@ export default function Navigation({
             setUser={setUser}
             setUserGoogle={setUserGoogle}
             userGoogle={userGoogle}
+            toastRef={toastRef}
           />
         )}
       </Stack.Screen>
