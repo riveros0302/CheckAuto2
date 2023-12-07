@@ -32,6 +32,7 @@ export default function Ajustes({
   userGoogle,
   user,
   toastRef,
+  blockAds,
 }) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -77,6 +78,7 @@ export default function Ajustes({
   }, []);
 
   const signOut = async () => {
+    console.log("QUE TRAE USERGOOGLE: " + JSON.stringify(userGoogle));
     try {
       if (userGoogle) {
         setTxtLoad("Cerrando Sesión...");
@@ -141,6 +143,33 @@ export default function Ajustes({
 
   const callService = () => {
     navigation.navigate("terms");
+  };
+
+  const reauthenticate = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signInSilently();
+      console.log("Usuario reautenticado:", userInfo);
+      // Realizar acciones adicionales con la información del usuario
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+        console.log("Se requiere autenticación:", error);
+        // Implementa aquí la lógica para que el usuario se autentique nuevamente
+      } else {
+        console.error("Error al reautenticar:", error);
+        // Otro manejo de errores
+      }
+    }
+  };
+
+  const checkifGoogleLogin = () => {
+    if (userGoogle) {
+      console.log("llamar a login de google");
+      reauthenticate();
+      setModalDeleteAcc(true);
+    } else {
+      setReauthModal(true);
+    }
   };
 
   return (
@@ -218,7 +247,7 @@ export default function Ajustes({
             <View style={{ marginVertical: 15 }}>
               <Text style={styles.txt}>Acerca de</Text>
               <Text style={styles.txt2}>CheckAuto </Text>
-              <Text style={styles.txt2}>Desarrollado por TEOMGames{"\n"} </Text>
+              <Text style={styles.txt2}>Desarrollado por Teom Apps{"\n"} </Text>
               <Text style={styles.txt2}>Version {pkg.expo.version}</Text>
             </View>
           </View>
@@ -239,7 +268,7 @@ export default function Ajustes({
           />
           <Button
             title={"Eliminar Cuenta"}
-            onPress={() => setReauthModal(true)}
+            onPress={checkifGoogleLogin}
             containerStyle={{
               borderRadius: 10,
               width: "90%",
@@ -277,6 +306,7 @@ export default function Ajustes({
           showModal={showModal}
           setShowModal={setShowModal}
           idSubs={idSubs}
+          blockAds={blockAds}
         />
         <DeleteAcc
           ModalDeleteAcc={ModalDeleteAcc}
@@ -337,7 +367,7 @@ function Reauth(props) {
       close={true}
     >
       <Text style={styles.titleDelete}>
-        Ingresa tu contraseña antes continuar
+        Ingresa tu contraseña antes de continuar
       </Text>
       <Input
         password={true}
@@ -412,7 +442,7 @@ function DeleteAcc(props) {
 }
 
 function Suscripciones(props) {
-  const { showModal, setShowModal, idSubs } = props;
+  const { showModal, setShowModal, idSubs, blockAds } = props;
   const { packages } = useRevenueCat();
   return (
     <Modal
@@ -421,7 +451,11 @@ function Suscripciones(props) {
       colorModal={"white"}
       close={true}
     >
-      <SuscripcionView idSubs={idSubs ? idSubs : null} isSetting={true} />
+      <SuscripcionView
+        idSubs={idSubs ? idSubs : null}
+        isSetting={true}
+        blockAds={blockAds}
+      />
     </Modal>
   );
 }

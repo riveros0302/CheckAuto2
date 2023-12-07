@@ -2,7 +2,7 @@
   "expo": {
     "name": "CheckAuto",
     "slug": "CheckAuto2",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "orientation": "portrait",
     "plugins": ["@react-native-google-signin/google-signin"],
     "icon": "./assets/icon.png",
@@ -23,7 +23,7 @@
       },
       "package": "com.riveros0302.CheckAuto2",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 21,
+      "versionCode": 22,
       "permissions": [
         "BILLING",
         "ACCESS_FINE_LOCATION",

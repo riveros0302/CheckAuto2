@@ -7,34 +7,35 @@ import {
   Text,
   ScrollView,
   Linking,
-} from 'react-native';
-import { Button, Icon, Image } from 'react-native-elements';
-import React, { useState, useEffect, useRef } from 'react';
-import Pdf from 'react-native-pdf';
-import * as DocumentPicker from 'expo-document-picker';
-import { primary, background } from '../utils/tema';
+} from "react-native";
+import { Button, Icon, Image } from "react-native-elements";
+import React, { useState, useEffect, useRef } from "react";
+import Pdf from "react-native-pdf";
+import * as DocumentPicker from "expo-document-picker";
+import { primary, background } from "../utils/tema";
 import {
   uploadPDFToFirebase,
   getURLFromFirestore,
-} from '../utils/Database/auto';
-import { uploadImageDocument } from '../utils/uploadPhoto';
-import Loading from './Loading';
-import MenuFlotante from './MenuFlotante';
-import { descripciones } from '../utils/Descripcion/descDocument';
-import { idDoc } from '../utils/preguntas';
-import Modal from './Modal';
-import * as ImagePicker from 'expo-image-picker';
-import ImageResizer from 'react-native-image-resizer';
-import { useNavigation } from '@react-navigation/native';
+} from "../utils/Database/auto";
+import { uploadImageDocument } from "../utils/uploadPhoto";
+import Loading from "./Loading";
+import MenuFlotante from "./MenuFlotante";
+import { descripciones } from "../utils/Descripcion/descDocument";
+import { idDoc } from "../utils/preguntas";
+import Modal from "./Modal";
+import * as ImagePicker from "expo-image-picker";
+import ImageResizer from "react-native-image-resizer";
+import { useNavigation } from "@react-navigation/native";
+import ScannerQr from "./ScannerQr";
 
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get("window").width;
+const screenHeight = Dimensions.get("window").height;
 
 export default function ShowPDF({ route, toastRef }) {
   const { index, titulo } = route.params;
   const [pdfurl, setPdfurl] = useState(null);
   const [reload, setReload] = useState(false);
-  const [txtLoad, setTxtLoad] = useState('Cargando documento...');
+  const [txtLoad, setTxtLoad] = useState("Cargando documento...");
   const [showModalInfo, setShowModalInfo] = useState(false);
   const [showOption, setShowOption] = useState(false);
   const [imageUri, setImageUri] = useState(null);
@@ -76,8 +77,8 @@ export default function ShowPDF({ route, toastRef }) {
   const takePicture = async () => {
     setShowOption(false);
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permisos de cámara no otorgados.');
+    if (status !== "granted") {
+      alert("Permisos de cámara no otorgados.");
       return;
     }
 
@@ -93,7 +94,7 @@ export default function ShowPDF({ route, toastRef }) {
         result.assets[0].uri,
         800,
         600,
-        'JPEG',
+        "JPEG",
         50
       );
       setImageUri(newUri);
@@ -103,8 +104,8 @@ export default function ShowPDF({ route, toastRef }) {
         await uploadImageDocument(newUri, index, titulo);
         setPdfurl(null);
         setReload(false);
-        navigation.navigate('home');
-        toastRef.current.show('Documento registrado correctamente', 2000);
+        navigation.navigate("home");
+        toastRef.current.show("Documento registrado correctamente", 2000);
       } catch (error) {
         console.log(error);
       }
@@ -116,7 +117,7 @@ export default function ShowPDF({ route, toastRef }) {
     setShowOption(false);
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf',
+        type: "application/pdf",
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -140,17 +141,17 @@ export default function ShowPDF({ route, toastRef }) {
         } catch (error) {
           setReload(false);
           console.log(
-            'Error al subir el archivo PDF a Firebase:',
+            "Error al subir el archivo PDF a Firebase:",
             error.message
           );
         }
       } else {
         setReload(false);
-        console.log('Se canceló la selección');
+        console.log("Se canceló la selección");
       }
     } catch (error) {
       setReload(false);
-      console.log('Error al seleccionar el documento:', error);
+      console.log("Error al seleccionar el documento:", error);
     }
   };
 
@@ -170,8 +171,8 @@ export default function ShowPDF({ route, toastRef }) {
       <SafeAreaView
         style={{
           flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: "center",
+          justifyContent: "center",
           margin: 10,
           marginTop: 70,
           marginBottom: 30,
@@ -193,37 +194,46 @@ export default function ShowPDF({ route, toastRef }) {
             onPressLink={(uri) => {
               console.log(`Link pressed: ${uri}`);
             }}
-            style={{ flex: 1, alignSelf: 'stretch' }}
+            style={{ flex: 1, alignSelf: "stretch" }}
           />
         ) : imageUri ? (
           <Image
             source={{ uri: imageUri }}
             style={styles.imgUrl}
-            resizeMode='contain'
+            resizeMode="contain"
           />
         ) : (
           <Image
-            source={require('../../assets/Iconos/NOPDF.png')}
+            source={require("../../assets/Iconos/NOPDF.png")}
             style={styles.nopdf}
           />
         )}
 
         <Loading isVisible={reload} text={txtLoad} />
       </SafeAreaView>
+      <View style={styles.floatingButton3}>
+        <Icon
+          name="qrcode-scan"
+          type="material-community"
+          color="white"
+          size={25}
+          onPress={() => navigation.navigate("qrcode")}
+        />
+      </View>
       <View style={styles.floatingButton2}>
         <Icon
-          name='information-variant'
-          type='material-community'
-          color='white'
+          name="information-variant"
+          type="material-community"
+          color="white"
           size={25}
           onPress={() => setShowModalInfo(true)}
         />
       </View>
       <View style={styles.floatingButton}>
         <Icon
-          name='pencil'
-          type='material-community'
-          color='white'
+          name="pencil"
+          type="material-community"
+          color="white"
           size={40}
           onPress={() => setShowOption(true)}
         />
@@ -252,22 +262,22 @@ function ModalOption(props) {
     <Modal
       isVisible={showOption}
       setIsVisible={setShowOption}
-      colorModal={'white'}
+      colorModal={"white"}
       close={true}
     >
       <Text style={styles.titulo}>¿Como quieres subir tu documento?</Text>
       <Button
-        title={'Subir PDF'}
+        title={"Subir PDF"}
         buttonStyle={styles.btn}
         titleStyle={styles.txt}
-        icon={<Icon type='material-community' name='file-pdf-box' />}
+        icon={<Icon type="material-community" name="file-pdf-box" />}
         onPress={pickDocument}
       />
       <Button
-        title={'Tomar Foto'}
+        title={"Tomar Foto"}
         buttonStyle={styles.btn}
         titleStyle={styles.txt}
-        icon={<Icon type='material-community' name='camera' />}
+        icon={<Icon type="material-community" name="camera" />}
         onPress={takePicture}
       />
     </Modal>
@@ -278,8 +288,8 @@ function ModalInfo(props) {
   const { descripciones, showModalInfo, setShowModalInfo, id, realIndex } =
     props;
 
-  console.log('que trae realIndex: ' + realIndex);
-  console.log('id que trae: ' + id);
+  console.log("que trae realIndex: " + realIndex);
+  console.log("id que trae: " + id);
   const handleLinkPress = (url) => {
     Linking.openURL(url); // Abre la URL en el navegador
   };
@@ -290,18 +300,18 @@ function ModalInfo(props) {
     if (!description) {
       return null; // Si la descripción está undefined, no renderizamos nada
     }
-    const descriptionParts = description.split(' ');
+    const descriptionParts = description.split(" ");
 
     return descriptionParts.map((part, index) => {
-      if (part.startsWith('http') || part.startsWith('www')) {
+      if (part.startsWith("http") || part.startsWith("www")) {
         // Si la parte comienza con http o www, es probable que sea una URL
         return (
           <Text
             key={index}
-            style={{ color: primary, textDecorationLine: 'underline' }}
+            style={{ color: primary, textDecorationLine: "underline" }}
             onPress={() => handleLinkPress(part)}
           >
-            {part}{' '}
+            {part}{" "}
           </Text>
         );
       } else {
@@ -314,16 +324,16 @@ function ModalInfo(props) {
     <Modal
       isVisible={showModalInfo}
       setIsVisible={setShowModalInfo}
-      colorModal={'white'}
-      close={false}
+      colorModal={"white"}
+      close={true}
     >
       <Text style={styles.titleInfo}>¿COMO LO OBTENGO?</Text>
-      <ScrollView style={{ height: '80%' }}>
+      <ScrollView style={{ height: "80%" }}>
         <Text style={styles.descInfo}>{renderDescription()}</Text>
       </ScrollView>
 
       <Button
-        title={'ENTENDIDO'}
+        title={"ENTENDIDO"}
         onPress={() => setShowModalInfo(false)}
         buttonStyle={styles.btnInfo}
         titleStyle={styles.txtbtnInfo}
@@ -339,14 +349,14 @@ const styles = StyleSheet.create({
     margin: 30,
   },
   iconst: {
-    width: '50%',
-    position: 'absolute',
+    width: "50%",
+    position: "absolute",
   },
   image: {
-    height: '100%',
+    height: "100%",
   },
   floatingButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 40,
     right: 15,
     backgroundColor: primary, // Color de fondo del botón flotante
@@ -354,8 +364,16 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   floatingButton2: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 120,
+    right: 15,
+    backgroundColor: primary, // Color de fondo del botón flotante
+    borderRadius: 50, // Hacer el botón circular
+    padding: 10,
+  },
+  floatingButton3: {
+    position: "absolute",
+    bottom: 180,
     right: 15,
     backgroundColor: primary, // Color de fondo del botón flotante
     borderRadius: 50, // Hacer el botón circular
@@ -363,43 +381,43 @@ const styles = StyleSheet.create({
   },
   titleInfo: {
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     color: primary,
     marginBottom: 15,
   },
   descInfo: {
-    color: 'grey',
-    width: '85%',
+    color: "grey",
+    width: "85%",
     marginLeft: 20,
     marginBottom: 15,
     fontSize: 15,
-    textAlign: 'left',
+    textAlign: "left",
   },
   btnInfo: {
-    backgroundColor: 'transparent',
-    width: '50%',
-    alignSelf: 'flex-end',
+    backgroundColor: "transparent",
+    width: "50%",
+    alignSelf: "flex-end",
   },
   txtbtnInfo: {
     color: primary,
   },
   btn: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   txt: {
-    color: 'grey',
+    color: "grey",
   },
   titulo: {
-    alignSelf: 'center',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    width: '90%',
+    alignSelf: "center",
+    textAlign: "center",
+    fontWeight: "bold",
+    width: "90%",
     fontSize: 15,
     marginBottom: 15,
   },
   imgUrl: {
-    width: '100%', // Ancho al 100% del contenedor
+    width: "100%", // Ancho al 100% del contenedor
     height: undefined, // Altura calculada según el aspecto original de la imagen
     aspectRatio: 2 / 3, // Relación de aspecto original de la imagen (ejemplo: 4:3)
     marginBottom: 50,

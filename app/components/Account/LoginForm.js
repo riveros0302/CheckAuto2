@@ -29,7 +29,7 @@ export default function LoginForm({
   const [hidden, setHidden] = useState(false);
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
-  const [logedNormal, setLogedNormal] = useState(true);
+  const [logedNormal, setLogedNormal] = useState(false);
   const [reloadLogin, setReloadLogin] = useState(false);
   const [isvisible, setVisible] = useState(true);
   const [checked, setChecked] = useState(false);
@@ -37,28 +37,45 @@ export default function LoginForm({
   // Handle user state changes
   function onAuthStateChanged(user) {
     //consultar con que se está logueando con google o inicio normal
-    console.log("que trae userrrrr: " + JSON.stringify(user));
-    if (!logedNormal) {
-      console.log("Es login de google");
-      setUserGoogle(user);
-    } else {
-      if (!isRegister) {
-        if (user) {
-          console.log(JSON.stringify(user));
+    console.log("QUE ES LOGEDNORMAL: " + logedNormal);
+    if (isRegister) {
+      if (user) {
+        console.log(JSON.stringify(user));
 
-          if (user.emailVerified) {
-            setUser(user);
-            console.log("Es login normal y el email esta verificado");
-          } else {
-            console.log("el email no esta verificado");
-            toastRef.current.show(
-              `¡Porfavor verifica tu correo electrónico!`,
-              3000
-            );
-          }
+        if (user.emailVerified) {
+          setUser(user);
+          console.log("Es login normal y el email esta verificado");
+        } else {
+          console.log("el email no esta verificado");
+          toastRef.current.show(
+            `¡Porfavor verifica tu correo electrónico!`,
+            3000
+          );
         }
+      }
+    } else {
+      if (!logedNormal) {
+        console.log("Es login de google");
+        setUserGoogle(user);
       } else {
-        console.log("es registro no se puede iniciar sesion todavia");
+        if (!isRegister) {
+          if (user) {
+            console.log(JSON.stringify(user));
+
+            if (user.emailVerified) {
+              setUser(user);
+              console.log("Es login normal y el email esta verificado");
+            } else {
+              console.log("el email no esta verificado");
+              toastRef.current.show(
+                `¡Porfavor verifica tu correo electrónico!`,
+                3000
+              );
+            }
+          }
+        } else {
+          console.log("es registro no se puede iniciar sesion todavia");
+        }
       }
     }
 
@@ -71,6 +88,7 @@ export default function LoginForm({
   }, [isRegister, reloadLogin]);
 
   const onSubmit = async () => {
+    setLogedNormal(true);
     if (auth().currentUser) {
       await auth().currentUser.reload();
       console.log("auth reload listo");
@@ -89,7 +107,7 @@ export default function LoginForm({
         .signInWithEmailAndPassword(formData.email, formData.password)
         .then((us) => {
           setLoading(false);
-          setLogedNormal(true);
+
           // console.log('usuario: ' + JSON.stringify(us));
         })
         .catch(() => {

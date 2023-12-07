@@ -1,13 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import BotonFlotante from './BotonFlotante';
-import { useNavigation } from '@react-navigation/native';
-import Share from 'react-native-share';
-import Modal from './Modal';
-import { Button, Icon } from 'react-native-elements';
-import { generatePDF } from '../utils/PdfAuto';
-import { downloadImage } from '../utils/uploadPhoto';
-import Loading from './Loading';
+import { StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import BotonFlotante from "./BotonFlotante";
+import { useNavigation } from "@react-navigation/native";
+import Share from "react-native-share";
+import Modal from "./Modal";
+import { Button, Icon } from "react-native-elements";
+import { generatePDF } from "../utils/PdfAuto";
+import { downloadImage } from "../utils/uploadPhoto";
+import Loading from "./Loading";
 
 export default function MenuFlotante(props) {
   const {
@@ -30,21 +30,21 @@ export default function MenuFlotante(props) {
     blockAds,
   } = props;
   const navigation = useNavigation();
-  const [imagen, setImagen] = useState(require('../../assets/Iconos/HOME.png'));
+  const [imagen, setImagen] = useState(require("../../assets/Iconos/HOME.png"));
   const [array, setArray] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
   const keysToFilter = [
-    'url_foto',
-    'createBy',
-    'Index',
-    'device',
-    'documentos',
+    "url_foto",
+    "createBy",
+    "Index",
+    "device",
+    "documentos",
   ];
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (main) {
-      setImagen(require('../../assets/Iconos/MENU0.png'));
+      setImagen(require("../../assets/Iconos/MENU0.png"));
 
       const dataArray = Object.entries(data)
         .filter(([key]) => !keysToFilter.includes(key))
@@ -69,22 +69,22 @@ export default function MenuFlotante(props) {
       try {
         const shareOptions = {
           url: `file://${res}`,
-          type: pdfurl ? 'application/pdf' : 'image/jpeg',
+          type: pdfurl ? "application/pdf" : "image/jpeg",
         };
 
         await Share.open(shareOptions);
       } catch (error) {
-        console.log('Error al compartir:', error.message);
+        console.log("Error al compartir:", error.message);
       }
     });
   };
 
   const ifMain = () => {
     if (main) {
-      navigation.navigate('todos', { toastRef });
+      navigation.navigate("todos", { toastRef });
     } else {
       if (isShowPDF) {
-        navigation.navigate('home');
+        navigation.navigate("home");
       } else {
         navigation.goBack();
       }
@@ -102,7 +102,9 @@ export default function MenuFlotante(props) {
     if (isPDF) {
       imageUri
         ? shareFile()
-        : toastRef.current.show('¡Debes subir un documento!', 2000);
+        : pdfurl
+        ? shareFile()
+        : toastRef.current.show("¡Debes subir un documento!", 2000);
     } else {
       setIsVisible(true);
     }
@@ -110,11 +112,11 @@ export default function MenuFlotante(props) {
 
   return (
     <View style={styles.view}>
-      <BotonFlotante source={imagen} posicion={'flex-start'} onpress={ifMain} />
+      <BotonFlotante source={imagen} posicion={"flex-start"} onpress={ifMain} />
       {!isSetting && !isNotification && !isLogin && (
         <BotonFlotante
-          source={require('../../assets/Iconos/COMPARTIR.png')}
-          posicion={'flex-end'}
+          source={require("../../assets/Iconos/COMPARTIR.png")}
+          posicion={"flex-end"}
           onpress={ifpdf}
         />
       )}
@@ -126,7 +128,7 @@ export default function MenuFlotante(props) {
         setLoading={setLoading}
       />
 
-      <Loading isVisible={loading} text='Generando PDF' />
+      <Loading isVisible={loading} text="Generando PDF" />
     </View>
   );
 }
@@ -136,12 +138,12 @@ function OptionShare(props) {
 
   const shareAuto = async () => {
     try {
-      let keysMessage = 'Datos de mi vehiculo:\n\n';
+      let keysMessage = "Datos de mi vehiculo:\n\n";
 
       array.forEach((auto) => {
         const key = Object.keys(auto)[0];
         const value = auto[key];
-        keysMessage += key + ': ' + value + '\n';
+        keysMessage += key + ": " + value + "\n";
       });
 
       const shareOptions = {
@@ -153,17 +155,17 @@ function OptionShare(props) {
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
           // Compartido con alguna aplicación específica (result.activityType)
-          console.log('compartida con alguna aplicacion');
+          console.log("compartida con alguna aplicacion");
         } else {
           // Compartido
-          console.log('compartido');
+          console.log("compartido");
         }
       } else if (result.action === Share.dismissedAction) {
         // Compartir cancelado
-        console.log('compartir cnacelado');
+        console.log("compartir cnacelado");
       }
     } catch (error) {
-      console.log('Error al compartirrr:', error.message);
+      console.log("Error al compartirrr:", error.message);
     }
   };
 
@@ -172,7 +174,7 @@ function OptionShare(props) {
       setLoading(true);
       setIsVisible(false);
       const uri = await generatePDF(data);
-      console.log('url del pdf: ' + uri);
+      console.log("url del pdf: " + uri);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -183,24 +185,24 @@ function OptionShare(props) {
     <Modal
       isVisible={isVisible}
       setIsVisible={setIsVisible}
-      colorModal={'white'}
+      colorModal={"white"}
       close={true}
     >
       <Text style={styles.titulo}>
         ¿Como quieres compartir la información de tu vehiculo?
       </Text>
       <Button
-        title={'Datos basicos'}
+        title={"Como mensaje"}
         buttonStyle={styles.btn}
         titleStyle={styles.txt}
-        icon={<Icon type='material-community' name='format-list-numbered' />}
+        icon={<Icon type="material-community" name="format-list-numbered" />}
         onPress={shareAuto}
       />
       <Button
-        title={'Datos completos'}
+        title={"Como PDF"}
         buttonStyle={styles.btn}
         titleStyle={styles.txt}
-        icon={<Icon type='material-community' name='file-pdf-box' />}
+        icon={<Icon type="material-community" name="file-pdf-box" />}
         onPress={crearPdf}
       />
     </Modal>
@@ -209,21 +211,21 @@ function OptionShare(props) {
 
 const styles = StyleSheet.create({
   view: {
-    position: 'absolute',
-    width: '100%',
+    position: "absolute",
+    width: "100%",
     zIndex: 1,
   },
   btn: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   txt: {
-    color: 'grey',
+    color: "grey",
   },
   titulo: {
-    alignSelf: 'center',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    width: '90%',
+    alignSelf: "center",
+    textAlign: "center",
+    fontWeight: "bold",
+    width: "90%",
     fontSize: 15,
     marginBottom: 15,
   },

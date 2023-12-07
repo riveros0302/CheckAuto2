@@ -15,6 +15,7 @@ import Home from "../utils/RevenueCat/Home";
 import { RevenueCatProvider } from "../utils/RevenueCat/RevenueCatProvider";
 import PoliticasyUso from "../utils/Politics";
 import Terms from "../utils/Terms";
+import ScannerQr from "../components/ScannerQr";
 
 const Stack = createStackNavigator();
 
@@ -73,6 +74,7 @@ export default function Navigation({
             setUserGoogle={setUserGoogle}
             userGoogle={userGoogle}
             toastRef={toastRef}
+            blockAds={blockAds}
           />
         )}
       </Stack.Screen>
@@ -94,6 +96,11 @@ export default function Navigation({
       <Stack.Screen
         name="terms"
         component={Terms}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="qrcode"
+        component={ScannerQr}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
